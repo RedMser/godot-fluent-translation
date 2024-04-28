@@ -1,9 +1,14 @@
 extends Control
 
 
+# Create translations for both English and German languages.
 func _init():
+	# "locale" is what Godot's language is set to, while the add_bundle_from_text parameter
+	# is what fluent uses as language identifier. This might be unified in the future.
 	var translation1 = TranslationFluent.new()
 	translation1.locale = "en"
+	# Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
+	# FTL syntax. So convert tabs to four spaces.
 	var err1 = translation1.add_bundle_from_text(&"en", """
 -term = email
 HELLO =
@@ -41,5 +46,7 @@ func _notification(what: int) -> void:
 
 
 func retranslate():
+	# atr and tr have a new "args" Dictionary parameter which is used to fill $variables.
 	$Label.text = atr("HELLO", { "unreadEmails": $SpinBox.value })
+	# The context field is used to retrieve .attributes of a message.
 	$Label2.text = atr("HELLO", {}, "meta")
