@@ -8,6 +8,5 @@ crate-type = ["cdylib"]  # Compile this crate to a dynamic C library.
 
 [dependencies]
 fluent = "0.16.0"
-# TODO: need "experimental-threads" since godot calls translation get_message threaded
 godot = { git = "https://github.com/godot-rust/gdext", branch = "master", features = ["experimental-threads", "custom-godot"] }
 unic-langid = "0.9.4"

@@ -119,7 +119,6 @@ impl TranslationFluent {
     }
 
     fn translate(bundle: &FluentBundle<FluentResource>, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
-        // TODO: I might want to use TextServer/Time singletons where possible for formatting dates, numbers etc. instead of the lib's builtin logic
         let message = bundle.get_message(&String::from(message_id));
         if message.is_none() {
             return None;
