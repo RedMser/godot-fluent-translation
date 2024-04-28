@@ -8,43 +8,43 @@
 
 ```gd
 func _init():
-  # Currently, there is no resource importer for FTL files.
-	var translation = TranslationFluent.new()
+    # Currently, there is no resource importer for FTL files.
+    var translation = TranslationFluent.new()
 
-	# "locale" is what Godot's language is set to, while the add_bundle_from_text parameter
-	# is what fluent uses as language identifier. This might be unified in the future.
-	translation.locale = "en"
+    # "locale" is what Godot's language is set to, while the add_bundle_from_text parameter
+    # is what fluent uses as language identifier. This might be unified in the future.
+    translation.locale = "en"
 
-	# Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
-	# FTL syntax. So convert tabs to four spaces.
-	translation.add_bundle_from_text(&"en", """
+    # Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
+    # FTL syntax. So convert tabs to four spaces.
+    translation.add_bundle_from_text(&"en", """
 -term = email
 HELLO =
-	{ $unreadEmails ->
-		[one] You have one unread { -term }.
-	   *[other] You have { $unreadEmails } unread { -term }s.
-	}
-	.meta = An attr.
+    { $unreadEmails ->
+        [one] You have one unread { -term }.
+       *[other] You have { $unreadEmails } unread { -term }s.
+    }
+    .meta = An attr.
 """.replace("\t", "    "))
 
-  # Register the translation.
-	TranslationServer.add_translation(translation)
+    # Register the translation.
+    TranslationServer.add_translation(translation)
 
-  # Repeat this process for all of your languages...
+    # Repeat this process for all of your languages...
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_TRANSLATION_CHANGED:
-    # atr and tr have a new "args" Dictionary parameter which is used to fill $variables.
-    $Label.text = atr("HELLO", { "unreadEmails": $SpinBox.value })
-    # The context field is used to retrieve .attributes of a message.
-    $Label2.text = atr("HELLO", {}, "meta")
+    if what == NOTIFICATION_TRANSLATION_CHANGED:
+        # atr and tr have a new "args" Dictionary parameter which is used to fill $variables.
+        $Label.text = atr("HELLO", { "unreadEmails": $SpinBox.value })
+        # The context field is used to retrieve .attributes of a message.
+        $Label2.text = atr("HELLO", {}, "meta")
 ```
 
 ## Setup
 
 * Needs Godot 4.1 or later - I used 4.3 master build based on commit [`6118592c6d`](https://github.com/godotengine/godot/commit/6118592c6d88350d01f74faff6fd49754f84a7d0)
-  * Due to a change in the Translation API, you must create a custom build of the engine with a patch applied. See instructions below.
+    * Due to a change in the Translation API, you must create a custom build of the engine with a patch applied. See instructions below.
 * You must have Rust set up, see [this guide](https://godot-rust.github.io/book/intro/setup.html) and follow the LLVM instructions as well.
 
 ## Installation
