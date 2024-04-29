@@ -3,20 +3,7 @@ extends Control
 
 # Create translations for both English and German languages.
 func _init():
-	var translation1 = TranslationFluent.new()
-	translation1.locale = "en"
-	# Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
-	# FTL syntax. So convert tabs to four spaces.
-	var err1 = translation1.add_bundle_from_text("""
--term = email
-HELLO =
-	{ $unreadEmails ->
-		[one] You have one unread { -term }.
-	   *[other] You have { $unreadEmails } unread { -term }s.
-	}
-	.meta = An attr.
-""".replace("\t", "    "))
-	print(err1)
+	var translation1 = load("res://test.ftl")
 	var translation2 = TranslationFluent.new()
 	translation2.locale = "de"
 	var err2 = translation2.add_bundle_from_text("""
