@@ -3,37 +3,25 @@ extends Control
 
 # Create translations for both English and German languages.
 func _init():
-	# "locale" is what Godot's language is set to, while the add_bundle_from_text parameter
-	# is what fluent uses as language identifier. This might be unified in the future.
-	var translation1 = TranslationFluent.new()
-	translation1.locale = "en"
-	# Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
-	# FTL syntax. So convert tabs to four spaces.
-	var err1 = translation1.add_bundle_from_text(&"en", """
+	var tr_filename = load("res://test.en.ftl")
+	var tr_foldername = load("res://de/german-test.ftl")
+	var tr_inline = TranslationFluent.new()
+	tr_inline.locale = "pt_PT"
+	var err_inline = tr_inline.add_bundle_from_text("""
 -term = email
 HELLO =
 	{ $unreadEmails ->
-		[one] You have one unread { -term }.
-	   *[other] You have { $unreadEmails } unread { -term }s.
+		[one] Tens um { -term } por ler.
+	   *[other] Tens { $unreadEmails } { -term }s por ler.
 	}
-	.meta = An attr.
+	.meta = Um atributo.
 """.replace("\t", "    "))
-	print(err1)
-	var translation2 = TranslationFluent.new()
-	translation2.locale = "de"
-	var err2 = translation2.add_bundle_from_text(&"de", """
--term = E-mail
-HELLO =
-	{ $unreadEmails ->
-		[one] Du hast eine ungelesene { -term }.
-		[13] Pech...
-	   *[other] Du hast { $unreadEmails } ungelesene { -term }s.
-	}
-	.meta = Eine Attr.
-""".replace("\t", "    "))
-	print(err2)
-	TranslationServer.add_translation(translation1)
-	TranslationServer.add_translation(translation2)
+	TranslationServer.add_translation(tr_filename)
+	TranslationServer.add_translation(tr_foldername)
+	if err_inline == OK:
+		TranslationServer.add_translation(tr_inline)
+	else:
+		push_error("Failed to parse tr_inline: ", error_string(err_inline))
 
 
 func _on_lang_text_changed(new_text: String) -> void:

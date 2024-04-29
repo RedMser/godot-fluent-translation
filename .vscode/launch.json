@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Godot",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/godot.windows.editor.x86_64.exe",
+            "args": ["-e"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/godot",
+            "environment": [],
+            "console": "internalConsole",
+            "preLaunchTask": "rust: cargo build",
+            //"visualizerFile": "${workspaceFolder}/platform/windows/godot.natvis"
+        },
+        {
+            "name": "Debug Rust",
+            "type": "lldb", // type provided by CodeLLDB extension
+            "program": "${workspaceFolder}/build/godot.windows.editor.x86_64.console.exe",
+            "request": "launch",
+            "preLaunchTask": "rust: cargo build",
+            "cwd": "${workspaceFolder}/godot",
+            "args": [ "-e" ],
+        }
+    ],
+    "compounds": []
+}
