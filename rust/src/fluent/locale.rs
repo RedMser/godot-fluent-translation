@@ -42,7 +42,6 @@ pub fn compute_locale(path: &PathBuf) -> Option<String> {
         let folder_regex = RegEx::create_from_string(folder_regex.into()).unwrap();
         for folder in path.iter().rev() {
             let folder = folder.to_owned().into_string().unwrap();
-            godot_warn!("{}", folder);
             if folder == path::MAIN_SEPARATOR_STR {
                 continue;
             }

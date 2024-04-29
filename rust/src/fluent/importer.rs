@@ -39,7 +39,6 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
         let path_buf: String = path.clone().into();
         let path_buf = PathBuf::from(path_buf);
         let locale = compute_locale(&path_buf);
-        godot_warn!("{:?}", locale);
         if locale.is_none() {
             return GdErr::ERR_INVALID_PARAMETER.ord().to_variant();
         }
