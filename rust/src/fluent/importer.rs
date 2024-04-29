@@ -1,7 +1,9 @@
-use godot::{engine::{FileAccess, IResourceFormatLoader, ResourceFormatLoader, ResourceLoader}, prelude::*};
+use std::path::PathBuf;
+
+use godot::{engine::{FileAccess, IResourceFormatLoader, ResourceFormatLoader}, prelude::*};
 use godot::engine::global::Error as GdErr;
 
-use super::translation::TranslationFluent;
+use super::{locale::compute_locale, translation::TranslationFluent};
 
 #[derive(GodotClass)]
 #[class(base=ResourceFormatLoader)]
@@ -34,6 +36,14 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
     }
 
     fn load(&self, path: GString, _original_path: GString, _use_sub_threads: bool, _cache_mode: i32) -> Variant {
+        let path_buf: String = path.clone().into();
+        let path_buf = PathBuf::from(path_buf);
+        let locale = compute_locale(&path_buf);
+        godot_warn!("{:?}", locale);
+        if locale.is_none() {
+            return GdErr::ERR_INVALID_PARAMETER.ord().to_variant();
+        }
+
         let text = FileAccess::get_file_as_string(path);
         let err = FileAccess::get_open_error();
         if err != GdErr::OK {
@@ -41,29 +51,11 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
         }
 
         let mut translation = TranslationFluent::new_gd();
-        translation.bind_mut().base_mut().set_locale("en".into()); // TODO: Decide dynamically.
+        translation.bind_mut().base_mut().set_locale(locale.unwrap().into());
         let err = translation.bind_mut().add_bundle_from_text(text.to_string());
         if err != GdErr::OK {
             return err.ord().to_variant();
         }
         translation.to_variant()
-    }
-}
-
-#[derive(GodotClass)]
-#[class(base=Object, init)]
-pub struct FluentI18nSingleton {
-    loader: Gd<ResourceFormatLoaderFluent>,
-}
-
-impl FluentI18nSingleton {
-    pub(crate) const SINGLETON_NAME: &'static str = "FluentI18nSingleton";
-
-    pub(crate) fn register(&self) {
-        ResourceLoader::singleton().add_resource_format_loader(self.loader.clone().upcast());
-    }
-
-    pub(crate) fn unregister(&self) {
-        ResourceLoader::singleton().remove_resource_format_loader(self.loader.clone().upcast());
     }
 }

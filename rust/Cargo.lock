@@ -64,6 +64,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "constcat"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f2e5af989b1955b092db01462980c0a286217f86817e12b2c09aea46bd03651"
+
+[[package]]
 name = "displaydoc"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -427,6 +433,7 @@ checksum = "adad44e29e4c806119491a7f06f03de4d1af22c3a680dd47f1e6e179439d1f56"
 name = "rust"
 version = "0.1.0"
 dependencies = [
+ "constcat",
  "fluent",
  "godot",
  "unic-langid",

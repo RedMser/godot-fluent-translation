@@ -6,17 +6,24 @@
 
 ## Sample
 
-The API might change in the near future!
-
 ```gd
 func _init():
-    # Currently, there is no resource importer for FTL files.
-    var translation = TranslationFluent.new()
-    translation.locale = "en"
+    # Three ways to load FTL translations:
+
+    # 1. load(path) with locale in file name (Portuguese).
+    var tr_filename = load("res://test.pt_PT.ftl")
+
+    # 2. load(path) with locale in folder name (German).
+    var tr_foldername = load("res://de/german-test.ftl")
+
+    # 3. Manually create a TranslationFluent resource.
+    var tr_inline = TranslationFluent.new()
+    # Ensure that you fill the locale before adding any contents (English).
+    tr_inline.locale = "en"
 
     # Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
-    # FTL syntax. So convert tabs to four spaces.
-    translation.add_bundle_from_text("""
+    # FTL syntax. So convert tabs to four spaces. Returns an error that you should handle.
+    var err_inline = tr_inline.add_bundle_from_text("""
 -term = email
 HELLO =
     { $unreadEmails ->
@@ -26,10 +33,10 @@ HELLO =
     .meta = An attr.
 """.replace("\t", "    "))
 
-    # Register the translation.
-    TranslationServer.add_translation(translation)
-
-    # Repeat this process for all of your languages...
+    # Register via TranslationServer.
+    TranslationServer.add_translation(tr_filename)
+    TranslationServer.add_translation(tr_foldername)
+    TranslationServer.add_translation(tr_inline)
 
 
 func _notification(what: int) -> void:
@@ -39,6 +46,14 @@ func _notification(what: int) -> void:
         # The context field is used to retrieve .attributes of a message.
         $Label2.text = atr("HELLO", {}, "meta")
 ```
+
+## Project Settings
+
+* `internationalization/fluent/locale_by_file_regex`: If specified, file name is first checked for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
+* `internationalization/fluent/locale_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
+* `internationalization/locale/fallback`: Fallback locale is used when the selected language does not have a date/time/number formatter available.
+
+If you don't see some of these settings, make sure you have Advanced Settings showing.
 
 ## Setup
 

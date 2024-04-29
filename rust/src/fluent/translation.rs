@@ -4,9 +4,11 @@ use std::sync::{Arc, RwLock};
 use fluent::types::{FluentNumber, FluentNumberOptions};
 use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue};
 use godot::prelude::*;
-use godot::engine::{ITranslation, Translation};
+use godot::engine::{ITranslation, ProjectSettings, Translation};
 use godot::engine::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
+
+use super::project_settings::PROJECT_SETTING_FALLBACK_LOCALE;
 
 #[derive(GodotClass)]
 #[class(base=Translation)]
@@ -56,7 +58,19 @@ impl ITranslation for TranslationFluent {
 
 #[godot_api]
 impl TranslationFluent {
-    fn map_fluent_error<T>(result: &Result<T, Vec<FluentError>>) -> GdErr {
+    fn map_langid_error(error: LanguageIdentifierError) -> GdErr {
+        match error {
+            LanguageIdentifierError::ParserError(error) => {
+                match error {
+                    unic_langid::parser::ParserError::InvalidLanguage => GdErr::ERR_DOES_NOT_EXIST,
+                    unic_langid::parser::ParserError::InvalidSubtag => GdErr::ERR_INVALID_DATA,
+                }
+            },
+            LanguageIdentifierError::Unknown => GdErr::ERR_INVALID_DATA,
+        }
+    }
+
+    fn map_fluent_error(result: &Result<(), Vec<FluentError>>) -> GdErr {
         match result {
             Ok(_) => GdErr::OK,
             Err(errs) => {
@@ -164,21 +178,21 @@ impl TranslationFluent {
         let mut bundles = self.bundles.write().unwrap();
         let lang_id = String::from(lang).parse::<LanguageIdentifier>();
         match lang_id {
-            Err(err) => {
-                match err {
-                    LanguageIdentifierError::ParserError(err) => {
-                        match err {
-                            unic_langid::parser::ParserError::InvalidLanguage => GdErr::ERR_DOES_NOT_EXIST,
-                            unic_langid::parser::ParserError::InvalidSubtag => GdErr::ERR_INVALID_DATA,
-                        }
-                    },
-                    LanguageIdentifierError::Unknown => GdErr::ERR_INVALID_DATA,
-                }
-            },
+            Err(err) => Self::map_langid_error(err),
             Ok(lang_id) => {
-                // TODO: I could also include fallback lang_ids here, since I'm not sure what
-                //       happens when the formatter is unavailable and no fallback exists.
-                let mut bundle = FluentBundle::new(vec!(lang_id));
+                let mut locales = vec![lang_id];
+                // Use TranslationServer fallback if it exists (same check as TS::translate).
+                let fallback_locale = ProjectSettings::singleton().get_setting(PROJECT_SETTING_FALLBACK_LOCALE.into()).stringify();
+                if fallback_locale.len() >= 2 {
+                    let fallback_locale_id = fallback_locale.to_string().parse::<LanguageIdentifier>();
+                    match fallback_locale_id {
+                        Err(err) => return Self::map_langid_error(err),
+                        Ok(fallback_locale_id) => {
+                            locales.push(fallback_locale_id);
+                        }
+                    }
+                }
+                let mut bundle = FluentBundle::new(locales);
                 // bundle.set_use_isolating(false);
                 let err = Self::map_fluent_error(&bundle.add_resource(res));
                 bundles.push(bundle);

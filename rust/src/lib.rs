@@ -1,4 +1,5 @@
-use crate::fluent::importer::FluentI18nSingleton;
+use crate::fluent::global::FluentI18nSingleton;
+use fluent::project_settings;
 use godot::{engine::Engine, prelude::*};
 
 pub mod fluent;
@@ -9,6 +10,8 @@ struct FluentI18n;
 unsafe impl ExtensionLibrary for FluentI18n {
     fn on_level_init(level: InitLevel) {
         if level == InitLevel::Scene {
+            project_settings::register();
+
             let singleton = FluentI18nSingleton::new_alloc();
             singleton.bind().register();
 
