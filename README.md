@@ -51,8 +51,9 @@ func _notification(what: int) -> void:
 
 1. Apply the following patch to a custom Godot build: https://github.com/RedMser/godot/pull/1
 2. Clone this repository.
-3. Build the rust library via `cargo build`
-4. The demo project should now run successfully.
+3. Modify `rust/.cargo/config.toml` to point to your custom Godot build path.
+4. Build the rust library via `cargo build`
+5. The demo project should now run successfully.
 
 ## About this Project
 
