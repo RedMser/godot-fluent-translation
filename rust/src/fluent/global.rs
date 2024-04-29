@@ -1,6 +1,6 @@
 use godot::{engine::ResourceLoader, prelude::*};
 
-use super::importer::ResourceFormatLoaderFluent;
+use super::ResourceFormatLoaderFluent;
 
 #[derive(GodotClass)]
 #[class(base=Object, init)]

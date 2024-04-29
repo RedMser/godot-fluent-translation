@@ -1,4 +1,4 @@
-use crate::fluent::global::FluentI18nSingleton;
+use crate::fluent::FluentI18nSingleton;
 use fluent::project_settings;
 use godot::{engine::Engine, prelude::*};
 

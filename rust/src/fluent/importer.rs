@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use godot::{engine::{FileAccess, IResourceFormatLoader, ResourceFormatLoader}, prelude::*};
 use godot::engine::global::Error as GdErr;
 
-use super::{locale::compute_locale, translation::TranslationFluent};
+use super::{locale::compute_locale, TranslationFluent};
 
 #[derive(GodotClass)]
 #[class(base=ResourceFormatLoader)]
