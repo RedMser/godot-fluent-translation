@@ -1,0 +1,20 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "rust: cargo build",
+            "type": "cargo",
+            "command": "build",
+            "options": {
+                "cwd": "${workspaceFolder}/rust"
+            },
+            "presentation": {
+                "echo": false,
+                "reveal": "silent",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "group": "build"
+        }
+    ]
+}
