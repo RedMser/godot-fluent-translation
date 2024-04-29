@@ -12,14 +12,11 @@ The API might change in the near future!
 func _init():
     # Currently, there is no resource importer for FTL files.
     var translation = TranslationFluent.new()
-
-    # "locale" is what Godot's language is set to, while the add_bundle_from_text parameter
-    # is what fluent uses as language identifier. This might be unified in the future.
     translation.locale = "en"
 
     # Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
     # FTL syntax. So convert tabs to four spaces.
-    translation.add_bundle_from_text(&"en", """
+    translation.add_bundle_from_text("""
 -term = email
 HELLO =
     { $unreadEmails ->

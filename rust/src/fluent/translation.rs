@@ -1,6 +1,4 @@
 use std::borrow::Cow;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
 use fluent::types::{FluentNumber, FluentNumberOptions};
@@ -13,27 +11,25 @@ use unic_langid::LanguageIdentifier;
 #[derive(GodotClass)]
 #[class(base=Translation)]
 struct TranslationFluent {
-    bundles: Arc<RwLock<HashMap<StringName, FluentBundle<FluentResource>>>>,
-    languages: Arc<RwLock<Vec<StringName>>>,
+    bundles: Arc<RwLock<Vec<FluentBundle<FluentResource>>>>,
+    base: Base<Translation>,
 }
 
 #[godot_api]
 impl ITranslation for TranslationFluent {
-    fn init(_base: Base<Translation>) -> Self {
+    fn init(base: Base<Translation>) -> Self {
         Self {
-            bundles: Arc::new(RwLock::new(HashMap::new())),
-            languages: Arc::new(RwLock::new(Vec::new())),
+            bundles: Arc::new(RwLock::new(Vec::new())),
+            base,
         }
     }
 
     fn get_message(&self, src_message: StringName, args: Dictionary, context: StringName) -> StringName {
         let bundles = self.bundles.read().unwrap();
-        let languages = self.languages.read().unwrap();
 
-        let result = languages
+        let result = bundles
             .iter()
-            .map(|lang| {
-                let bundle = bundles.get(lang)?;
+            .map(|bundle| {
                 Self::translate(bundle, &src_message, &args, if context.is_empty() { None } else { Some(&context) })
             })
             .filter(|v| v.is_some())
@@ -146,7 +142,7 @@ impl TranslationFluent {
     }
 
     #[func]
-    fn add_bundle_from_text(&mut self, lang: StringName, text: String) -> GdErr {
+    fn add_bundle_from_text(&mut self, text: String) -> GdErr {
         let res = FluentResource::try_new(text);
         if res.is_err() {
             // TODO: I could give more parser error details here, and probably should? :)
@@ -154,33 +150,22 @@ impl TranslationFluent {
         }
         let res = res.unwrap();
         let mut bundles = self.bundles.write().unwrap();
-        let entry = bundles.entry(lang.clone());
-        let err = match entry {
-            Entry::Occupied(mut e) => {
-                let bundle = e.get_mut();
-                Self::map_fluent_error(&bundle.add_resource(res))
+        let lang = self.base().get_locale();
+        let lang_id = String::from(lang).parse::<LanguageIdentifier>();
+        match lang_id {
+            Err(_err) => {
+                // TODO: I could give more error info here, but likely not helpful?
+                GdErr::ERR_INVALID_DATA
+            },
+            Ok(lang_id) => {
+                // TODO: I could also include fallback lang_ids here, since I'm not sure what
+                //       happens when the formatter is unavailable and no fallback exists.
+                let mut bundle = FluentBundle::new(vec!(lang_id));
+                // bundle.set_use_isolating(false);
+                let err = Self::map_fluent_error(&bundle.add_resource(res));
+                bundles.push(bundle);
+                err
             }
-            Entry::Vacant(e) => {
-                let lang_id = String::from(lang.clone()).parse::<LanguageIdentifier>();
-                match lang_id {
-                    Err(_err) => {
-                        // TODO: I could give more error info here, but likely not helpful?
-                        GdErr::ERR_INVALID_DATA
-                    },
-                    Ok(lang_id) => {
-                        let mut bundle = FluentBundle::new(vec!(lang_id));
-                        // bundle.set_use_isolating(false);
-                        let err = Self::map_fluent_error(&bundle.add_resource(res));
-                        e.insert(bundle);
-                        err
-                    }
-                }
-            }
-        };
-        if err == GdErr::OK {
-            let mut languages = self.languages.write().unwrap();
-            languages.push(lang);
         }
-        err
     }
 }

@@ -3,13 +3,11 @@ extends Control
 
 # Create translations for both English and German languages.
 func _init():
-	# "locale" is what Godot's language is set to, while the add_bundle_from_text parameter
-	# is what fluent uses as language identifier. This might be unified in the future.
 	var translation1 = TranslationFluent.new()
 	translation1.locale = "en"
 	# Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
 	# FTL syntax. So convert tabs to four spaces.
-	var err1 = translation1.add_bundle_from_text(&"en", """
+	var err1 = translation1.add_bundle_from_text("""
 -term = email
 HELLO =
 	{ $unreadEmails ->
@@ -21,7 +19,7 @@ HELLO =
 	print(err1)
 	var translation2 = TranslationFluent.new()
 	translation2.locale = "de"
-	var err2 = translation2.add_bundle_from_text(&"de", """
+	var err2 = translation2.add_bundle_from_text("""
 -term = E-mail
 HELLO =
 	{ $unreadEmails ->
