@@ -1,6 +1,6 @@
 use godot::prelude::*;
 
-mod fluent;
+pub mod fluent;
 
 struct MyExtension;
 

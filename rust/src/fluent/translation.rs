@@ -6,11 +6,11 @@ use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue}
 use godot::prelude::*;
 use godot::engine::{ITranslation, Translation};
 use godot::engine::global::Error as GdErr;
-use unic_langid::LanguageIdentifier;
+use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
 #[derive(GodotClass)]
 #[class(base=Translation)]
-struct TranslationFluent {
+pub struct TranslationFluent {
     bundles: Arc<RwLock<Vec<FluentBundle<FluentResource>>>>,
     base: Base<Translation>,
 }
@@ -18,6 +18,12 @@ struct TranslationFluent {
 #[godot_api]
 impl ITranslation for TranslationFluent {
     fn init(base: Base<Translation>) -> Self {
+        // HACK: To avoid crashes with unreferenced parent, intentionally leak memory. See https://github.com/godot-rust/gdext/issues/557
+        std::mem::forget(base.to_gd());
+
+        // Default to an empty locale, so that it must be explicitly specified when loading a FTL file.
+        base.to_gd().set_locale(GString::new());
+
         Self {
             bundles: Arc::new(RwLock::new(Vec::new())),
             base,
@@ -114,7 +120,7 @@ impl TranslationFluent {
         output
     }
 
-    fn translate(bundle: &FluentBundle<FluentResource>, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
+    pub fn translate(bundle: &FluentBundle<FluentResource>, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
         let message = bundle.get_message(&String::from(message_id));
         if message.is_none() {
             return None;
@@ -142,20 +148,32 @@ impl TranslationFluent {
     }
 
     #[func]
-    fn add_bundle_from_text(&mut self, text: String) -> GdErr {
+    pub fn add_bundle_from_text(&mut self, text: String) -> GdErr {
         let res = FluentResource::try_new(text);
         if res.is_err() {
             // TODO: I could give more parser error details here, and probably should? :)
             return GdErr::ERR_PARSE_ERROR;
         }
+        let lang = self.base().get_locale();
+        if lang.is_empty() {
+            // Give a user-friendly message.
+            godot_error!("Failed to add bundle to TranslationFluent: locale has not been set.");
+            return GdErr::ERR_DOES_NOT_EXIST;
+        }
         let res = res.unwrap();
         let mut bundles = self.bundles.write().unwrap();
-        let lang = self.base().get_locale();
         let lang_id = String::from(lang).parse::<LanguageIdentifier>();
         match lang_id {
-            Err(_err) => {
-                // TODO: I could give more error info here, but likely not helpful?
-                GdErr::ERR_INVALID_DATA
+            Err(err) => {
+                match err {
+                    LanguageIdentifierError::ParserError(err) => {
+                        match err {
+                            unic_langid::parser::ParserError::InvalidLanguage => GdErr::ERR_DOES_NOT_EXIST,
+                            unic_langid::parser::ParserError::InvalidSubtag => GdErr::ERR_INVALID_DATA,
+                        }
+                    },
+                    LanguageIdentifierError::Unknown => GdErr::ERR_INVALID_DATA,
+                }
             },
             Ok(lang_id) => {
                 // TODO: I could also include fallback lang_ids here, since I'm not sure what
