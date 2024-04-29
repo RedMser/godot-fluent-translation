@@ -1,10 +1,12 @@
 # Godot Fluent Translation
 
-[Fluent](https://projectfluent.org/) Translation for Godot via [rust](https://github.com/projectfluent/fluent-rs) [bindings](https://github.com/godot-rust/gdext).
+[Fluent](https://projectfluent.org/) Translation for Godot via a [Rust](https://github.com/projectfluent/fluent-rs) [GDExtension](https://github.com/godot-rust/gdext).
 
 ![Demo project](./docs/demo.gif)
 
 ## Sample
+
+The API might change in the near future!
 
 ```gd
 func _init():
@@ -57,8 +59,8 @@ func _notification(what: int) -> void:
 
 ## About this Project
 
-This is not a serious project and will likely not be used in production as-is. Please consider this if you intend on using this library.
+This is not a production-ready project and will likely have large breaking changes changes to come. Please consider this if you intend on using this library.
 
-Due to breaking API changes in Godot, it is unlikely to become easily usable out-of-the-box. Not much I can do besides wait for another major release that would accept this breaking change.
+Due to Godot needing breaking API changes to have this extension work, it is unlikely to become easily usable out-of-the-box. Not much I can do besides wait for another major release that would accept this breaking change.
 
 Any help in continuing development for this library is welcome!
