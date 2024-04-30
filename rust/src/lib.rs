@@ -13,10 +13,22 @@ unsafe impl ExtensionLibrary for FluentI18n {
             project_settings::register();
 
             let singleton = FluentI18nSingleton::new_alloc();
-            singleton.bind().register();
+            singleton.bind().register_scene();
 
             Engine::singleton()
                 .register_singleton(FluentI18nSingleton::SINGLETON_NAME.into(), singleton.upcast());
+        } else if level == InitLevel::Editor {
+            let engine = Engine::singleton();
+
+            let singleton = engine
+                .get_singleton(FluentI18nSingleton::SINGLETON_NAME.into())
+                .unwrap();
+
+            singleton
+                .clone()
+                .cast::<FluentI18nSingleton>()
+                .bind_mut()
+                .register_editor();
         }
     }
 
@@ -34,9 +46,21 @@ unsafe impl ExtensionLibrary for FluentI18n {
                 .clone()
                 .cast::<FluentI18nSingleton>()
                 .bind()
-                .unregister();
+                .unregister_scene();
 
             singleton.free();
+        } else if level == InitLevel::Editor {
+            let engine = Engine::singleton();
+
+            let singleton = engine
+                .get_singleton(FluentI18nSingleton::SINGLETON_NAME.into())
+                .unwrap();
+            
+            singleton
+                .clone()
+                .cast::<FluentI18nSingleton>()
+                .bind()
+                .unregister_editor();
         }
     }
 }
