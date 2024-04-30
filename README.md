@@ -8,15 +8,16 @@
 
 ```gd
 func _init():
-    # Three ways to load FTL translations:
+    # Four ways to load FTL translations:
+    # 1. [Project Settings -> Localization -> Translations] and add a .ftl file there.
 
-    # 1. load(path) with locale in file name (Portuguese).
+    # 2. load(path) with locale in file name (Portuguese).
     var tr_filename = load("res://test.pt_PT.ftl")
 
-    # 2. load(path) with locale in folder name (German).
+    # 3. load(path) with locale in folder name (German).
     var tr_foldername = load("res://de/german-test.ftl")
 
-    # 3. Manually create a TranslationFluent resource.
+    # 4. Manually create a TranslationFluent resource.
     var tr_inline = TranslationFluent.new()
     # Ensure that you fill the locale before adding any contents (English).
     tr_inline.locale = "en"
