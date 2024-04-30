@@ -57,7 +57,7 @@ If you don't see some of these settings, make sure you have Advanced Settings sh
 
 ## Setup
 
-* Needs Godot 4.1 or later - I used 4.3 master build based on commit [`6118592c6d`](https://github.com/godotengine/godot/commit/6118592c6d88350d01f74faff6fd49754f84a7d0)
+* Needs Godot 4.1 or later - I used 4.3 master build based on commit [`d282e4f0e6`](https://github.com/godotengine/godot/commit/d282e4f0e6b6ebcf3bd6e05cd62f2a8fe1f9a238)
     * Due to a change in the Translation API, you must create a custom build of the engine with a patch applied. See instructions below.
 * You must have Rust set up, see [this guide](https://godot-rust.github.io/book/intro/setup.html) and follow the LLVM instructions as well.
 
@@ -71,7 +71,7 @@ If you don't see some of these settings, make sure you have Advanced Settings sh
 
 ## About this Project
 
-This is not a production-ready project and will likely have large breaking changes changes to come. Please consider this if you intend on using this library.
+This is not a production-ready project and will likely have breaking API changes without warning. Please consider this if you intend on using this library.
 
 Due to Godot needing breaking API changes to have this extension work, it is unlikely to become easily usable out-of-the-box. Not much I can do besides wait for another major release that would accept this breaking change.
 
