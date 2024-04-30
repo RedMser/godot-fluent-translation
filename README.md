@@ -64,7 +64,7 @@ If you don't see some of these settings, make sure you have Advanced Settings sh
 
 ## Installation
 
-1. Apply the following patch to a custom Godot build: https://github.com/RedMser/godot/pull/1
+1. Apply the following patch to a custom Godot build: https://github.com/RedMser/godot/pull/2
 2. Clone this repository.
 3. Modify `rust/.cargo/config.toml` to point to your custom Godot build path.
 4. Build the rust library via `cargo build`
