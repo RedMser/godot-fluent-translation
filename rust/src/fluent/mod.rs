@@ -1,5 +1,7 @@
 mod global;
 pub use self::global::*;
+mod generator;
+pub use self::generator::*;
 mod importer;
 pub use self::importer::*;
 mod translation;

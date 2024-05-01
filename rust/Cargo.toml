@@ -8,6 +8,8 @@ crate-type = ["cdylib"]  # Compile this crate to a dynamic C library.
 
 [dependencies]
 constcat = "0.5.0"
-fluent = "0.16.0"
+fluent = { git = "https://github.com/projectfluent/fluent-rs", branch = "main" }
+fluent-syntax = { git = "https://github.com/projectfluent/fluent-rs", branch = "main" }
 godot = { git = "https://github.com/godot-rust/gdext", branch = "master", features = ["experimental-threads", "custom-godot"] }
+itertools = "0.12.1"
 unic-langid = "0.9.4"

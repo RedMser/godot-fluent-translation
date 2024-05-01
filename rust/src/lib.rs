@@ -3,6 +3,7 @@ use fluent::project_settings;
 use godot::{engine::Engine, prelude::*};
 
 pub mod fluent;
+pub mod utils;
 
 struct FluentI18n;
 
