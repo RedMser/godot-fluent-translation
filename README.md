@@ -52,9 +52,44 @@ func _notification(what: int) -> void:
 
 * `internationalization/fluent/locale_by_file_regex`: If specified, file name is first checked for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
 * `internationalization/fluent/locale_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
+* `internationalization/fluent/generator/locales`: See below.
+* `internationalization/fluent/generator/file_patterns`: See below.
+* `internationalization/fluent/generator/invalid_message_handling`: If a message identifier is invalid (e.g. contains symbols or spaces), should it be skipped or should the invalid symbols be replaced with underscores?
 * `internationalization/locale/fallback`: Fallback locale is used when the selected language does not have a date/time/number formatter available.
 
 If you don't see some of these settings, make sure you have Advanced Settings showing.
+
+## FTL Generator
+
+You can automatically extract message IDs from your scene files!
+
+1. Edit the `internationalization/fluent/generator/locales` project setting to define a list of locales to generate.
+2. Edit the `internationalization/fluent/generator/file_patterns` project setting to define how files should be generated:
+    - Both the key and the value should be type String.
+    - The key represents a regular expression to locale a set of source files. For example `(.+)\.tscn` would find all scene files in your project.
+        - Note that capture groups can be used later, so make sure to make good use of non-capturing groups to ensure your group indices are consistent.
+    - The value represents the path to the generated FTL file. It can contain placeholders that get replaced:
+        - `{$locale}` is replaced with each of the locales listed in the `locales` project setting (creating multiple files).
+        - `{$n}` is replaced with the n-th capture group (so `{$1}` would contain the first capture group that matched).
+        - For example, with the above regex, `res://i18n/{$1}.{$locale}.ftl` would create files like `i18n/my_scene.en.ftl` in your project root.
+    - If a FTL file already exists (or is matched multiple times, e.g. by different patterns), it will be merged with the existing file. No messages are ever deleted, and existing messages will remain untouched.
+3. Run the generator by creating a tool script such as this one:
+
+```gd
+@tool
+extends EditorScript
+
+func _run() -> void:
+    var generator = FluentGenerator.create()
+    generator.generate()
+```
+
+(To run an `EditorScript`, open it in the script editor, go to `File -> Run`.)
+
+This system provides maximal flexibility and very little maintenance once set up properly.
+
+Currently, only `.tscn` files are properly handled (similarly to the POT generator feature built into Godot).
+A plug-in system to customize message extraction is planned but currently not possible to implement.
 
 ## Setup
 
