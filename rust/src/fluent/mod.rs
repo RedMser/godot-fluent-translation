@@ -1,5 +1,9 @@
 mod global;
 pub use self::global::*;
+mod extractor;
+pub use self::extractor::*;
+mod extractor_packed_scene;
+pub use self::extractor_packed_scene::*;
 mod generator;
 pub use self::generator::*;
 mod importer;

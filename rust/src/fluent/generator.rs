@@ -1,13 +1,13 @@
 use godot::{engine::{utilities::error_string, ProjectSettings, RegEx, RegExMatch}, prelude::*};
 use itertools::Itertools;
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 use fluent_syntax::{ast, parser::parse};
 use fluent_syntax::serializer::serialize;
 
 use crate::utils::{create_or_open_file_for_read_write, get_files_recursive};
 use godot::engine::global::Error as GdErr;
 
-use super::project_settings::{INVALID_MESSAGE_HANDLING_SKIP, PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING, PROJECT_SETTING_GENERATOR_LOCALES, PROJECT_SETTING_GENERATOR_PATTERNS};
+use super::{project_settings::{INVALID_MESSAGE_HANDLING_SKIP, PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING, PROJECT_SETTING_GENERATOR_LOCALES, PROJECT_SETTING_GENERATOR_PATTERNS}, FluentPackedSceneTranslationParser, FluentTranslationParser};
 
 #[derive(GodotClass)]
 #[class(no_init)]
@@ -15,10 +15,12 @@ pub struct FluentGenerator {
     locales: Vec<String>,
     file_patterns: HashMap<Gd<RegEx>, String>,
     invalid_message_handling: i32,
+    // TODO: Once we have a dynamic plugin system, turn into a Vec<_> and loop through ALL parsers (don't stop after the first! merge results!)
+    extractor: FluentPackedSceneTranslationParser,
 }
 
 /// Uses a HashMap<id, msg> to disallow duplicate messages to be generated.
-type MessageGeneration = HashMap<String, String>;
+pub type MessageGeneration = HashMap<String, String>;
 
 #[godot_api]
 impl FluentGenerator {
@@ -38,6 +40,7 @@ impl FluentGenerator {
             locales,
             file_patterns,
             invalid_message_handling: i32::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING.into())),
+            extractor: FluentPackedSceneTranslationParser::init(),
         })
     }
 
@@ -47,10 +50,10 @@ impl FluentGenerator {
         let files = self.get_matching_files();
         let mut generate_tasks = HashMap::<String, MessageGeneration>::new();
         for (source, pattern) in files {
-            let targets = self.apply_pattern(source, pattern);
+            let targets = self.apply_pattern(source.clone(), pattern);
             for target in targets {
                 let entry = generate_tasks.entry(target.clone());
-                let mut messages = Self::get_messages(target).into_iter().filter_map(|(id, message)| {
+                let mut messages = self.get_messages(&source.get_string()).into_iter().filter_map(|(id, message)| {
                     if id.is_empty() {
                         return None;
                     }
@@ -76,20 +79,30 @@ impl FluentGenerator {
         }
     }
 
-    fn get_messages(file: String) -> MessageGeneration {
-        // TODO: extract messages from file (mainly tscn) - via plugin system similar to POT generator?
-        [(format!("message for {}", file), format!("message for {}", file))].into()
+    fn get_messages(&self, file: &GString) -> MessageGeneration {
+        self.extractor.extract_messages(file)
     }
 
     fn get_matching_files(&self) -> Vec<(Gd<RegExMatch>, String)> {
+        let recognized_extensions = self.extractor.get_recognized_extensions();
         get_files_recursive("res://".into())
             .into_iter()
             .filter_map(|str| {
                 // Check all patterns until the first matches (returns Some(RegExMatch)).
                 self.file_patterns.iter().find_map(|(regex, pattern)| {
-                    // None gets discarded, Some is remapped to include the pattern.
-                    regex.search(str.clone())
-                        .map(|regex_match| (regex_match, pattern.to_owned()))
+                    let regex_match = regex.search(str.clone());
+                    if regex_match.is_none() {
+                        return None;
+                    }
+                    let regex_match = (regex_match.unwrap(), pattern.to_owned());
+                    let path = PathBuf::from(str.to_string());
+                    let extension = path.extension().unwrap_or_default().to_str().unwrap_or_default();
+                    if !recognized_extensions.contains(&GString::from(extension)) {
+                        let regex_str = regex.get_pattern();
+                        godot_warn!("File {str} matched generator rule \"{regex_str} -> {pattern}\" but has unrecognized extension {extension}, ignoring.");
+                        return None;
+                    }
+                    return Some(regex_match);
                 })
             })
             .collect()
