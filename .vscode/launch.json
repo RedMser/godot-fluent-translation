@@ -6,7 +6,7 @@
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/godot.windows.editor.x86_64.exe",
-            "args": ["-e"],
+            "args": ["-e", "--verbose"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/godot",
             "environment": [],

@@ -7,10 +7,19 @@ const PROJECT_SETTING_PREFIX: &'static str = "internationalization/fluent/";
 pub(crate) const PROJECT_SETTING_FALLBACK_LOCALE: &'static str = "internationalization/locale/fallback";
 pub(crate) const PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX: &'static str = constcat!(PROJECT_SETTING_PREFIX, "locale_by_folder_regex");
 pub(crate) const PROJECT_SETTING_LOCALE_BY_FILE_REGEX: &'static str = constcat!(PROJECT_SETTING_PREFIX, "locale_by_file_regex");
+pub(crate) const PROJECT_SETTING_GENERATOR_LOCALES: &'static str = constcat!(PROJECT_SETTING_PREFIX, "generator/locales");
+pub(crate) const PROJECT_SETTING_GENERATOR_PATTERNS: &'static str = constcat!(PROJECT_SETTING_PREFIX, "generator/file_patterns");
+pub(crate) const PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING: &'static str = constcat!(PROJECT_SETTING_PREFIX, "generator/invalid_message_handling");
+
+pub(crate) const INVALID_MESSAGE_HANDLING_SKIP: i32 = 0;
+pub(crate) const INVALID_MESSAGE_HANDLING_CONVERT_TO_VALID: i32 = 1;
 
 pub fn register() -> () {
     register_setting(PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX.to_string(), "^.+$".to_variant());
     register_setting(PROJECT_SETTING_LOCALE_BY_FILE_REGEX.to_string(), "\\.(.+?)\\.ftl$".to_variant());
+    register_setting_hint(PROJECT_SETTING_GENERATOR_LOCALES.to_string(), PackedStringArray::new().to_variant(), PropertyHint::NONE, format!("{}/{}:", VariantType::String as i32, PropertyHint::LOCALE_ID.ord()).into());
+    register_setting(PROJECT_SETTING_GENERATOR_PATTERNS.to_string(), Dictionary::new().to_variant());
+    register_setting_hint(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING.to_string(), 0.to_variant(), PropertyHint::ENUM, "Skip message,Convert to valid".into());
 }
 
 fn register_setting(name: String, value: Variant) -> () {
