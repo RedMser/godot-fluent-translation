@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use godot::engine::file_access::ModeFlags;
 use godot::engine::utilities::error_string;
 use godot::engine::FileAccess;
@@ -34,6 +36,15 @@ pub fn get_files_recursive(path: GString) -> Vec<GString> {
 }
 
 pub fn create_or_open_file_for_read_write(path: GString) -> Result<Gd<FileAccess>, GdErr> {
+    let dir_only = match PathBuf::from(path.clone().to_string()).parent() {
+        Some(dir) => dir.to_str().unwrap_or_default().into(),
+        None => String::new(),
+    };
+    let dir_err = DirAccess::make_dir_recursive_absolute(dir_only.into());
+    if dir_err != GdErr::OK {
+        return Err(dir_err);
+    }
+
     let fa = FileAccess::open(path.clone().into(), ModeFlags::READ_WRITE);
     if fa.is_none() || FileAccess::get_open_error() != GdErr::OK {
         if FileAccess::get_open_error() == GdErr::ERR_FILE_NOT_FOUND {
