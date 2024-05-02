@@ -22,6 +22,7 @@ fluent/generator/locales=PackedStringArray("en", "de")
 fluent/generator/file_patterns={
 "(.+)\\.gd": "res://i18n/{$1}.{$locale}.ftl"
 }
+fluent/generator/invalid_message_handling=1
 
 [rendering]
 

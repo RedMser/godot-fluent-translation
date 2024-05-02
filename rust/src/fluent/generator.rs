@@ -1,23 +1,24 @@
 use godot::{engine::{utilities::error_string, ProjectSettings, RegEx, RegExMatch}, prelude::*};
 use itertools::Itertools;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use fluent_syntax::{ast, parser::parse};
 use fluent_syntax::serializer::serialize;
 
 use crate::utils::{create_or_open_file_for_read_write, get_files_recursive};
 use godot::engine::global::Error as GdErr;
 
-use super::project_settings::{PROJECT_SETTING_GENERATOR_LOCALES, PROJECT_SETTING_GENERATOR_PATTERNS};
+use super::project_settings::{INVALID_MESSAGE_HANDLING_SKIP, PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING, PROJECT_SETTING_GENERATOR_LOCALES, PROJECT_SETTING_GENERATOR_PATTERNS};
 
 #[derive(GodotClass)]
 #[class(no_init)]
 pub struct FluentGenerator {
     locales: Vec<String>,
     file_patterns: HashMap<Gd<RegEx>, String>,
+    invalid_message_handling: i32,
 }
 
-/// Uses a HashSet to disallow duplicate messages to be generated.
-type MessageGeneration = HashSet<String>;
+/// Uses a HashMap<id, msg> to disallow duplicate messages to be generated.
+type MessageGeneration = HashMap<String, String>;
 
 #[godot_api]
 impl FluentGenerator {
@@ -36,6 +37,7 @@ impl FluentGenerator {
         Gd::from_object(Self {
             locales,
             file_patterns,
+            invalid_message_handling: i32::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING.into())),
         })
     }
 
@@ -48,7 +50,23 @@ impl FluentGenerator {
             let targets = self.apply_pattern(source, pattern);
             for target in targets {
                 let entry = generate_tasks.entry(target.clone());
-                entry.or_default().extend(&mut Self::get_messages(target).into_iter().filter(|message| !message.is_empty()));
+                let mut messages = Self::get_messages(target).into_iter().filter_map(|(id, message)| {
+                    if id.is_empty() {
+                        return None;
+                    }
+
+                    let safe_id = Self::make_safe_identifier(id.clone());
+                    if id != safe_id {
+                        if self.invalid_message_handling == INVALID_MESSAGE_HANDLING_SKIP {
+                            // Skip invalid message.
+                            return None;
+                        } else {
+                            return Some((safe_id, message));
+                        }
+                    }
+                    return Some((id, message));
+                });
+                entry.or_default().extend(&mut messages);
             }
         }
 
@@ -60,7 +78,7 @@ impl FluentGenerator {
 
     fn get_messages(file: String) -> MessageGeneration {
         // TODO: extract messages from file (mainly tscn) - via plugin system similar to POT generator?
-        [format!("message for {}", file)].into()
+        [(format!("message for {}", file), format!("message for {}", file))].into()
     }
 
     fn get_matching_files(&self) -> Vec<(Gd<RegExMatch>, String)> {
@@ -120,14 +138,9 @@ impl FluentGenerator {
         }).collect();
         let mut new_messages = Vec::new();
 
-        for message in messages {
+        for (identifier, message) in messages {
             // Check if exists.
-            let identifier = Self::make_safe_identifier(message.clone());
-            if identifier != message {
-                godot_warn!("{} generated message with invalid identifier (\"{}\" -> \"{}\")", path, message, identifier);
-            }
             let existing = existing_messages.iter().find(|entry| entry.id.name == identifier);
-
             if existing.is_none() {
                 // Add new message.
                 godot_print!("{} added new message: {}", path, message);
