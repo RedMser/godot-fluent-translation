@@ -1,7 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://4w8ncdkbd1ov"]
+[gd_scene load_steps=2 format=3 uid="uid://4w8ncdkbd1ov"]
 
 [ext_resource type="Script" path="res://localization_test.gd" id="1_b7h8g"]
-[ext_resource type="Script" path="res://crac.gd" id="2_tydcc"]
 
 [node name="Localization" type="Control"]
 layout_mode = 3
@@ -43,9 +42,6 @@ offset_top = 113.0
 offset_right = 101.062
 offset_bottom = 144.0
 update_on_text_changed = true
-
-[node name="Node" type="Node" parent="."]
-script = ExtResource("2_tydcc")
 
 [connection signal="text_changed" from="Lang" to="." method="_on_lang_text_changed"]
 [connection signal="value_changed" from="SpinBox" to="." method="retranslate" unbinds=1]
