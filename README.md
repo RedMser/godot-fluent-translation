@@ -4,23 +4,66 @@
 
 ![Demo project](./docs/demo.gif)
 
-## Sample
+[**FTL Syntax Guide**](https://projectfluent.org/fluent/guide/)
+
+## Available Versions
+
+**If you simply wish to download and install this extension, keep reading.**
+
+If you are a developer and wish to build this extension yourself (e.g. to use a specific Godot version), go to [BUILDING](./BUILDING.md) to learn more about your choices.
+
+This extension can be downloaded in two different versions, each with their own benefits and downsides:
+
+### Default
+
+- Works with official releases of [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
+- Has some limitations
+    - Translations that use variables are written like `tr(TranslationFluent.args("message", { ... }))`
+        - Requires [`internationalization/fluent/parse_args_in_message`](#project-settings) to be enabled.
+    - Translation files must be loaded via code, not via Project Settings.
+
+### Forked
+
+- Requires a special custom ("forked") version of Godot. It might not be updated very frequently, work as well as the official builds, or be available for all platforms.
+- Better engine integration
+    - Translations that use variables can be written like `tr("message", { ... })`
+    - Translation files can be loaded via code or via Project Settings.
+
+### Why two versions?
+
+Due to Godot's translation system being very inflexible, it is not possible for an extension to modify certain parts about it.
+While I'd love for all features to work with the official version of Godot, it is unlikely for [all of my changes](https://github.com/RedMser/godot-fluent-translation/issues/11) to be included in any upcoming version.
+
+This is why you have the choice between a version that has better engine support, or one that "just works".
+
+## Installation
+
+- Decide which extension version you want to use (see above).
+- Download the corresponding [zip release](https://github.com/RedMser/godot-fluent-translation/releases) for your platform and version.
+- Extract the zip file contents to your project folder.
+- Download a compatible version of Godot.
+    - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
+    - **Forked**: The executable is included in the extension's zip file.
+- Start (or restart) Godot editor.
+- Follow the sample code to see if installation was successful. You can also try the sample project in the `godot` folder of this repository.
+
+## Code Sample
 
 ```gd
 func _init():
     # Four ways to load FTL translations:
-    # 1. [Project Settings -> Localization -> Translations] and add a .ftl file there.
-
-    # 2. load(path) with locale in file name (Portuguese).
+    # 1. load(path) with locale in file name (Portuguese).
     var tr_filename = load("res://test.pt_PT.ftl")
 
-    # 3. load(path) with locale in folder name (German).
+    # 2. load(path) with locale in folder name (German).
     var tr_foldername = load("res://de/german-test.ftl")
 
-    # 4. Manually create a TranslationFluent resource.
+    # 3. Manually create a TranslationFluent resource.
     var tr_inline = TranslationFluent.new()
     # Ensure that you fill the locale before adding any contents (English).
     tr_inline.locale = "en"
+
+    # 4. Forked only - [Project Settings -> Localization -> Translations] and add a .ftl file there.
 
     # Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
     # FTL syntax. So convert tabs to four spaces. Returns an error that you should handle.
@@ -42,14 +85,22 @@ HELLO =
 
 func _notification(what: int) -> void:
     if what == NOTIFICATION_TRANSLATION_CHANGED:
-        # atr and tr have a new "args" Dictionary parameter which is used to fill $variables.
+        # Fluent supports $variables, which can be filled when translating a message.
+
+        # Default version: use a wrapper function to pass arguments:
+        $Label.text = atr(TranslationFluent.args("HELLO", { "unreadEmails": $SpinBox.value }))
+
+        # Forked version: pass arguments directly to tr() and friends:
         $Label.text = atr("HELLO", { "unreadEmails": $SpinBox.value })
+
         # The context field is used to retrieve .attributes of a message.
-        $Label2.text = atr("HELLO", {}, "meta")
+        $Label2.text = atr("HELLO", "meta") # Default
+        $Label2.text = atr("HELLO", {}, "meta") # Forked
 ```
 
 ## Project Settings
 
+* `internationalization/fluent/parse_args_in_message`: Decides whether variables can be filled via the message parameter. This is the only way to pass args when using the [Default](#default) version, so only makes sense to use in that case.
 * `internationalization/fluent/locale_by_file_regex`: If specified, file name is first checked for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
 * `internationalization/fluent/locale_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
 * `internationalization/fluent/generator/locales`: See below.
@@ -90,20 +141,6 @@ This system provides maximal flexibility and very little maintenance once set up
 
 Currently, only `.tscn` files are properly handled (similarly to the POT generator feature built into Godot).
 A plug-in system to customize message extraction is planned but currently not possible to implement.
-
-## Setup
-
-* Needs Godot 4.1 or later - I used 4.3 master build based on commit [`d282e4f0e6`](https://github.com/godotengine/godot/commit/d282e4f0e6b6ebcf3bd6e05cd62f2a8fe1f9a238)
-    * Due to a change in the Translation API, you must create a custom build of the engine with a patch applied. See instructions below.
-* You must have Rust set up, see [this guide](https://godot-rust.github.io/book/intro/setup.html) and follow the LLVM instructions as well.
-
-## Installation
-
-1. Apply the following patch to a custom Godot build: https://github.com/RedMser/godot/pull/2
-2. Clone this repository.
-3. Modify `rust/.cargo/config.toml` to point to your custom Godot build path.
-4. Build the rust library via `cargo build`
-5. The demo project should now run successfully.
 
 ## About this Project
 
