@@ -2,6 +2,5 @@
 .godot/
 
 # Build targets
-build/**
-!build/.gdignore
+build/
 rust/target*/
