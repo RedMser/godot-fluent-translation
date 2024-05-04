@@ -4,4 +4,4 @@
 # Build targets
 build/**
 !build/.gdignore
-rust/target/
+rust/target*/

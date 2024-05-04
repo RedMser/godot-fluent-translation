@@ -236,6 +236,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "godot-fluent-translation"
+version = "0.1.0"
+dependencies = [
+ "constcat",
+ "fluent",
+ "fluent-syntax",
+ "godot",
+ "itertools",
+ "unic-langid",
+]
+
+[[package]]
 name = "godot-fmt"
 version = "0.1.0"
 source = "git+https://github.com/godot-rust/gdext?branch=master#e11c5bbf31b675fc6a53fe0bdd27aa26b5306281"
@@ -424,18 +436,6 @@ name = "regex-syntax"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adad44e29e4c806119491a7f06f03de4d1af22c3a680dd47f1e6e179439d1f56"
-
-[[package]]
-name = "rust"
-version = "0.1.0"
-dependencies = [
- "constcat",
- "fluent",
- "fluent-syntax",
- "godot",
- "itertools",
- "unic-langid",
-]
 
 [[package]]
 name = "rustc-hash"

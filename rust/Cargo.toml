@@ -1,5 +1,5 @@
 [package]
-name = "rust" # Appears in the filename of the compiled dynamic library.
+name = "godot-fluent-translation" # Appears in the filename of the compiled dynamic library.
 version = "0.1.0"
 edition = "2021"
 

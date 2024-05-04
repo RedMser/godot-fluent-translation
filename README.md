@@ -44,8 +44,8 @@ This is why you have the choice between a version that has better engine support
 - Download a compatible version of Godot.
     - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
     - **Forked**: The executable is included in the extension's zip file.
-- Start (or restart) Godot editor.
-- Follow the sample code to see if installation was successful. You can also try the sample project in the `godot` folder of this repository.
+- Start Godot editor.
+- Follow the sample code to see if installation was successful. You can also try the sample project in the `godot` folder of this repository (removing any code which causes errors).
 
 ## Code Sample
 
@@ -64,6 +64,7 @@ func _init():
     tr_inline.locale = "en"
 
     # 4. Forked only - [Project Settings -> Localization -> Translations] and add a .ftl file there.
+    # You may need to change the file filter to "All Files" to see .ftl files in the file selector dialog.
 
     # Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
     # FTL syntax. So convert tabs to four spaces. Returns an error that you should handle.
