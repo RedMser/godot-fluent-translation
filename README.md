@@ -1,5 +1,7 @@
 # Godot Fluent Translation
 
+![Logo of Godot Fluent Translation](./docs/logo.png)
+
 [Fluent](https://projectfluent.org/) Translation for Godot via a [Rust](https://github.com/projectfluent/fluent-rs) [GDExtension](https://github.com/godot-rust/gdext).
 
 ![Demo project](./docs/demo.gif)
