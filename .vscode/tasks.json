@@ -5,6 +5,9 @@
             "label": "rust: cargo build",
             "type": "cargo",
             "command": "build",
+            "args": [
+                "--features", "forked-godot"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}/rust"
             },

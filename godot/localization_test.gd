@@ -1,5 +1,7 @@
 extends Control
 
+## Decide whether you are using a Forked or a Default godot build. See README for explanation and differences.
+@export var is_using_forked_godot = true
 
 # Create translations for both English and German languages.
 func _init():
@@ -28,13 +30,24 @@ func _on_lang_text_changed(new_text: String) -> void:
 	TranslationServer.set_locale(new_text)
 
 
+func _on_spin_box_value_changed(value: float) -> void:
+	retranslate()
+
+
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
 		retranslate()
 
 
 func retranslate():
-	# atr and tr have a new "args" Dictionary parameter which is used to fill $variables.
-	$Label.text = atr("HELLO", { "unreadEmails": $SpinBox.value })
-	# The context field is used to retrieve .attributes of a message.
-	$Label2.text = atr("HELLO", {}, "meta")
+	if is_using_forked_godot:
+		# Forked version: pass arguments directly to tr() and friends:
+		$Label.text = atr("HELLO", { "unreadEmails": $SpinBox.value })
+		# The context field is used to retrieve .attributes of a message.
+		$Label2.text = atr("HELLO", {}, "meta")
+	else:
+		pass
+		# Default version: use a wrapper function to pass arguments:
+		#$Label.text = atr(TranslationFluent.args("HELLO", { "unreadEmails": $SpinBox.value }))
+		# The context field is used to retrieve .attributes of a message.
+		#$Label2.text = atr("HELLO", "meta")

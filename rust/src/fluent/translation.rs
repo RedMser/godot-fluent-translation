@@ -3,12 +3,13 @@ use std::sync::{Arc, RwLock};
 
 use fluent::types::{FluentNumber, FluentNumberOptions};
 use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue};
+use godot::engine::utilities::{str_to_var, var_to_str};
 use godot::prelude::*;
 use godot::engine::{ITranslation, ProjectSettings, Translation};
 use godot::engine::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
-use super::project_settings::PROJECT_SETTING_FALLBACK_LOCALE;
+use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE};
 
 #[derive(GodotClass)]
 #[class(base=Translation)]
@@ -32,13 +33,37 @@ impl ITranslation for TranslationFluent {
         }
     }
 
+    #[cfg(not(feature = "forked-godot"))]
+    fn get_message(&self, src_message: StringName, context: StringName) -> StringName {
+        self.get_message_impl(src_message, Default::default(), context)
+    }
+
+    #[cfg(feature = "forked-godot")]
     fn get_message(&self, src_message: StringName, args: Dictionary, context: StringName) -> StringName {
+        self.get_message_impl(src_message, args, context)
+    }
+
+    fn get_plural_message(&self, src_message: StringName, _src_plural_message: StringName, _n: i32, _context: StringName) -> StringName {
+        godot_warn!("TranslationFluent does not handle get_plural_message. \nUse get_message with args instead.");
+        src_message
+    }
+}
+
+#[godot_api]
+impl TranslationFluent {
+    fn get_message_impl(&self, src_message: StringName, args: Dictionary, context: StringName) -> StringName {
+        let (msg, args) = if args.is_empty() {
+            Self::extract_args(src_message)
+        } else {
+            (src_message, args)
+        };
+
         let bundles = self.bundles.read().unwrap();
 
         let result = bundles
             .iter()
             .map(|bundle| {
-                Self::translate(bundle, &src_message, &args, if context.is_empty() { None } else { Some(&context) })
+                Self::translate(bundle, &msg, &args.clone(), if context.is_empty() { None } else { Some(&context) })
             })
             .filter(|v| v.is_some())
             .map(|v| v.unwrap())
@@ -50,14 +75,6 @@ impl ITranslation for TranslationFluent {
         }
     }
 
-    fn get_plural_message(&self, src_message: StringName, _src_plural_message: StringName, _n: i32, _context: StringName) -> StringName {
-        godot_warn!("TranslationFluent does not handle get_plural_message. \nUse get_message with args instead.");
-        src_message
-    }
-}
-
-#[godot_api]
-impl TranslationFluent {
     fn map_langid_error(error: LanguageIdentifierError) -> GdErr {
         match error {
             LanguageIdentifierError::ParserError(error) => {
@@ -159,6 +176,37 @@ impl TranslationFluent {
             return None;
         }
         Some(text.into_owned())
+    }
+
+    #[func]
+    pub fn args(msg: StringName, args: Dictionary) -> StringName {
+        let args = var_to_str(Variant::from(args)).to_string();
+        let msg = msg.to_string() + &args;
+        msg.into()
+    }
+
+    fn extract_args(msg: StringName) -> (StringName, Dictionary) {
+        let project_settings = ProjectSettings::singleton();
+        let parse_args_in_message = bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE.into()));
+        if parse_args_in_message {
+            // Try parsing trailing dict as args.
+            let msg_str = msg.to_string();
+            if msg_str.ends_with('}') {
+                let open_brace = msg_str.rfind('{');
+                if let Some(open_brace) = open_brace {
+                    let args = &msg_str[open_brace..];
+                    let args = str_to_var(args.into());
+                    if args.get_type() != VariantType::Dictionary {
+                        return (msg, Default::default());
+                    }
+                    let args = Dictionary::from_variant(&args);
+                    let msg_str = &msg_str[0..open_brace];
+                    let msg_str = StringName::from(msg_str);
+                    return (msg_str, args);
+                }
+            }
+        }
+        (msg, Default::default())
     }
 
     #[func]
