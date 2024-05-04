@@ -5,6 +5,7 @@ use constcat::concat as constcat;
 
 const PROJECT_SETTING_PREFIX: &'static str = "internationalization/fluent/";
 pub(crate) const PROJECT_SETTING_FALLBACK_LOCALE: &'static str = "internationalization/locale/fallback";
+pub(crate) const PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE: &'static str = constcat!(PROJECT_SETTING_PREFIX, "parse_args_in_message");
 pub(crate) const PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX: &'static str = constcat!(PROJECT_SETTING_PREFIX, "locale_by_folder_regex");
 pub(crate) const PROJECT_SETTING_LOCALE_BY_FILE_REGEX: &'static str = constcat!(PROJECT_SETTING_PREFIX, "locale_by_file_regex");
 pub(crate) const PROJECT_SETTING_GENERATOR_LOCALES: &'static str = constcat!(PROJECT_SETTING_PREFIX, "generator/locales");
@@ -15,6 +16,8 @@ pub(crate) const INVALID_MESSAGE_HANDLING_SKIP: i32 = 0;
 pub(crate) const INVALID_MESSAGE_HANDLING_CONVERT_TO_VALID: i32 = 1;
 
 pub fn register() -> () {
+    // Default to true for default builds (no args parameter), false for forked builds.
+    register_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE.to_string(), cfg!(not(feature = "forked-godot")).to_variant());
     register_setting(PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX.to_string(), "^.+$".to_variant());
     register_setting(PROJECT_SETTING_LOCALE_BY_FILE_REGEX.to_string(), "\\.(.+?)\\.ftl$".to_variant());
     register_setting_hint(PROJECT_SETTING_GENERATOR_LOCALES.to_string(), PackedStringArray::new().to_variant(), PropertyHint::NONE, format!("{}/{}:", VariantType::String as i32, PropertyHint::LOCALE_ID.ord()).into());

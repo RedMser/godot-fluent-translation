@@ -11,4 +11,5 @@ pub use self::importer::*;
 mod translation;
 pub use self::translation::*;
 pub mod locale;
+#[allow(dead_code)]
 pub mod project_settings;
