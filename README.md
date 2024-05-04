@@ -43,7 +43,7 @@ This is why you have the choice between a version that has better engine support
 - Extract the zip file contents to your project folder.
 - Download a compatible version of Godot.
     - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
-    - **Forked**: The executable is included in the extension's zip file.
+    - **Forked**: The executable is available on the same page where you downloaded the extension zip, as another download.
 - Start Godot editor.
 - Follow the sample code to see if installation was successful. You can also try the sample project in the `godot` folder of this repository (removing any code which causes errors).
 
