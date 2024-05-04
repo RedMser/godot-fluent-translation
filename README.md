@@ -108,7 +108,8 @@ func _notification(what: int) -> void:
 * `internationalization/fluent/generator/invalid_message_handling`: If a message identifier is invalid (e.g. contains symbols or spaces), should it be skipped or should the invalid symbols be replaced with underscores?
 * `internationalization/locale/fallback`: Fallback locale is used when the selected language does not have a date/time/number formatter available.
 
-If you don't see some of these settings, make sure you have Advanced Settings showing.
+> [!TIP]
+> If you don't see some of these settings, make sure you have Advanced Settings showing.
 
 ## FTL Generator
 
@@ -135,7 +136,8 @@ func _run() -> void:
     generator.generate()
 ```
 
-(To run an `EditorScript`, open it in the script editor, go to `File -> Run`.)
+> [!TIP]
+> To run an `EditorScript`, open it in the script editor and go to `File -> Run`.
 
 This system provides maximal flexibility and very little maintenance once set up properly.
 
