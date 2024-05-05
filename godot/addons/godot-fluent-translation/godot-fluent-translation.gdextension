@@ -4,11 +4,11 @@ compatibility_minimum = 4.3
 reloadable = true
 
 [libraries]
-linux.debug.x86_64 =     "res://../rust/target/debug/libgodot-fluent-translation.so"
-linux.release.x86_64 =   "res://../rust/target/release/libgodot-fluent-translation.so"
-windows.debug.x86_64 =   "res://../rust/target/debug/godot-fluent-translation.dll"
-windows.release.x86_64 = "res://../rust/target/release/godot-fluent-translation.dll"
-macos.debug =            "res://../rust/target/debug/libgodot-fluent-translation.dylib"
-macos.release =          "res://../rust/target/release/libgodot-fluent-translation.dylib"
-macos.debug.arm64 =      "res://../rust/target/debug/libgodot-fluent-translation.dylib"
-macos.release.arm64 =    "res://../rust/target/release/libgodot-fluent-translation.dylib"
+linux.debug.x86_64 =     "res://../rust/target/debug/libgodot_fluent_translation.so"
+linux.release.x86_64 =   "res://../rust/target/release/libgodot_fluent_translation.so"
+windows.debug.x86_64 =   "res://../rust/target/debug/godot_fluent_translation.dll"
+windows.release.x86_64 = "res://../rust/target/release/godot_fluent_translation.dll"
+macos.debug =            "res://../rust/target/debug/libgodot_fluent_translation.dylib"
+macos.release =          "res://../rust/target/release/libgodot_fluent_translation.dylib"
+macos.debug.arm64 =      "res://../rust/target/debug/libgodot_fluent_translation.dylib"
+macos.release.arm64 =    "res://../rust/target/release/libgodot_fluent_translation.dylib"
