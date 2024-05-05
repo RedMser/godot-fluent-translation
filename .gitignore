@@ -1,6 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 
+# Temporary directories
+node_modules/
+
 # Build targets
 build/
 rust/target*/
