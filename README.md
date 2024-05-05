@@ -26,7 +26,7 @@ This extension can be downloaded in two different versions, each with their own 
 
 ### Forked
 
-- Requires a special custom ("forked") version of Godot, included as a separate download. It might not be updated very frequently.
+- Requires a special custom ("forked") version of Godot, included as a separate download (see installation instructions). It might not be updated very frequently.
 - Better engine integration
     - Translations that use variables can be written like `tr("message", { ... })`
     - Translation files can be loaded via code or via Project Settings.
@@ -45,7 +45,7 @@ This is why you have the choice between a version that has better engine support
 - Extract the zip file contents to your project folder.
 - Download a compatible version of Godot.
     - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
-    - **Forked**: The executable is available on the same page where you downloaded the extension zip, as another download.
+    - **Forked**: [Download forked builds here.](https://github.com/RedMser/godot/releases)
 - Start Godot editor. If it was already running, restart it to fix autocompletion.
 - Follow the sample code to see if installation was successful. Remove any code which contains errors, depending on the version you've installed.
     - You can also try the sample project in the `godot` folder of this repository.
