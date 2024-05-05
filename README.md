@@ -12,8 +12,6 @@
 
 If you are a developer and wish to build this extension yourself (e.g. to use a specific Godot version), go to [BUILDING](./BUILDING.md) to learn more about your choices.
 
-Releases are currently only available for **Windows**, but other platforms can be self-compiled.
-
 This extension can be downloaded in two different versions, each with their own benefits and downsides:
 
 ### Default
