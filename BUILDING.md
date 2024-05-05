@@ -38,6 +38,11 @@ The GDExtension uses following APIs only available in this version:
 
 If any interest for older Godot versions exist, consider tackling these compatibility issues first and then find out how low we can bring the minimum compatible version from this point onwards.
 
+## Platform Compatibility
+
+I've only compiled the extension for **Windows** 64-bit so far, tested on Windows 10.
+If you wish to help out with the [CI/CD](https://github.com/RedMser/godot-fluent-translation/issues/17), we can find out which other platforms are supported and provide releases for them as well!
+
 ## Build Instructions
 
 * Decide which version of Godot you intend on working with (see above).

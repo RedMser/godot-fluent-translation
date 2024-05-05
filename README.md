@@ -2,17 +2,17 @@
 
 ![Logo of Godot Fluent Translation](./docs/logo.png)
 
-[Fluent](https://projectfluent.org/) Translation for Godot via a [Rust](https://github.com/projectfluent/fluent-rs) [GDExtension](https://github.com/godot-rust/gdext).
+[Fluent](https://projectfluent.org/fluent/guide/) Translation for Godot via a [Rust](https://github.com/projectfluent/fluent-rs) [GDExtension](https://github.com/godot-rust/gdext).
 
 ![Demo project](./docs/demo.gif)
-
-[**FTL Syntax Guide**](https://projectfluent.org/fluent/guide/)
 
 ## Available Versions
 
 **If you simply wish to download and install this extension, keep reading.**
 
 If you are a developer and wish to build this extension yourself (e.g. to use a specific Godot version), go to [BUILDING](./BUILDING.md) to learn more about your choices.
+
+Releases are currently only available for **Windows**, but other platforms can be self-compiled.
 
 This extension can be downloaded in two different versions, each with their own benefits and downsides:
 
@@ -26,7 +26,7 @@ This extension can be downloaded in two different versions, each with their own 
 
 ### Forked
 
-- Requires a special custom ("forked") version of Godot. It might not be updated very frequently, work as well as the official builds, or be available for all platforms.
+- Requires a special custom ("forked") version of Godot, included as a separate download. It might not be updated very frequently.
 - Better engine integration
     - Translations that use variables can be written like `tr("message", { ... })`
     - Translation files can be loaded via code or via Project Settings.
@@ -46,8 +46,9 @@ This is why you have the choice between a version that has better engine support
 - Download a compatible version of Godot.
     - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
     - **Forked**: The executable is available on the same page where you downloaded the extension zip, as another download.
-- Start Godot editor.
-- Follow the sample code to see if installation was successful. You can also try the sample project in the `godot` folder of this repository (removing any code which causes errors).
+- Start Godot editor. If it was already running, restart it to fix autocompletion.
+- Follow the sample code to see if installation was successful. Remove any code which contains errors, depending on the version you've installed.
+    - You can also try the sample project in the `godot` folder of this repository.
 
 ## Code Sample
 
