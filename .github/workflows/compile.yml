@@ -1,0 +1,54 @@
+name: Compile
+
+on:
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  compile-windows:
+    name: Windows [Forked]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: robinraju/release-downloader@v1.10
+        name: Download Forked Godot
+        with:
+          latest: true
+          fileName: 'FORKED_godot.windows.editor.x86_64.exe'
+          out-file-path: ./build
+      - name: Set executable env var
+        run: echo "GODOT4_BIN=$env:GITHUB_WORKSPACE/build/FORKED_godot.windows.editor.x86_64.exe" >> $env:GITHUB_ENV
+      - name: Build
+        working-directory: ./rust
+        run: cargo build --features forked-godot
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FORKED_godot_fluent_translation_windows.dll
+          path: rust/target/debug/godot_fluent_translation.dll
+  compile-linux:
+    name: Linux [Default]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: robinraju/release-downloader@v1.10
+        name: Download Latest Godot
+        with:
+          repository: 'godotengine/godot-builds'
+          fileName: 'Godot_v4.3-dev6_linux.x86_64.zip'
+          tag: '4.3-dev6'
+          extract: true
+          out-file-path: ./build
+      - name: Make downloaded file executable
+        run: chmod +x ./build/Godot_v4.3-dev6_linux.x86_64
+      - name: Set executable env var
+        run: echo "GODOT4_BIN=$GITHUB_WORKSPACE/build/Godot_v4.3-dev6_linux.x86_64" >> $GITHUB_ENV
+      - name: Build
+        working-directory: ./rust
+        run: cargo build --features custom-godot
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DEFAULT_godot_fluent_translation_linux.so
+          path: rust/target/debug/libgodot_fluent_translation.so
