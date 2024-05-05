@@ -45,15 +45,15 @@ pub fn create_or_open_file_for_read_write(path: GString) -> Result<Gd<FileAccess
         return Err(dir_err);
     }
 
-    let fa = FileAccess::open(path.clone().into(), ModeFlags::READ_WRITE);
+    let fa = FileAccess::open(path.clone(), ModeFlags::READ_WRITE);
     if fa.is_none() || FileAccess::get_open_error() != GdErr::OK {
         if FileAccess::get_open_error() == GdErr::ERR_FILE_NOT_FOUND {
-            let fa = FileAccess::open(path.clone().into(), ModeFlags::WRITE_READ);
+            let fa = FileAccess::open(path.clone(), ModeFlags::WRITE_READ);
             if fa.is_some() && FileAccess::get_open_error() == GdErr::OK {
                 return Ok(fa.unwrap());
             }
         }
         return Err(FileAccess::get_open_error());
     }
-    return Ok(fa.unwrap());
+    Ok(fa.unwrap())
 }

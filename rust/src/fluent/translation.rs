@@ -62,11 +62,9 @@ impl TranslationFluent {
 
         let result = bundles
             .iter()
-            .map(|bundle| {
+            .filter_map(|bundle| {
                 Self::translate(bundle, &msg, &args.clone(), if context.is_empty() { None } else { Some(&context) })
             })
-            .filter(|v| v.is_some())
-            .map(|v| v.unwrap())
             .next();
 
         match result {
@@ -153,9 +151,7 @@ impl TranslationFluent {
 
     pub fn translate(bundle: &FluentBundle<FluentResource>, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
         let message = bundle.get_message(&String::from(message_id));
-        if message.is_none() {
-            return None;
-        }
+        message.as_ref()?;
         let message = message.unwrap();
         let pattern = match attribute {
             Some(attribute) => {
@@ -164,9 +160,7 @@ impl TranslationFluent {
             },
             None => message.value(),
         };
-        if pattern.is_none() {
-            return None;
-        }
+        pattern?;
         let pattern = pattern.unwrap();
         let mut errors = vec![];
         let args = Self::dict_to_args(args);

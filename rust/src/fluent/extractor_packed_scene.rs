@@ -87,7 +87,7 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
 
             // Parse the names of children of `TabContainer`s, as they are used for tab titles.
             if !tabcontainer_paths.is_empty() {
-                if !parent_path.to_string().starts_with(&GString::from(tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize].clone()).to_string()) {
+                if !parent_path.to_string().starts_with(&tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize].clone().to_string()) {
                     // Switch to the previous `TabContainer` this was nested in, if that was the case.
                     tabcontainer_paths.pop();
                 }
@@ -145,17 +145,17 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
                     // Prevent reading text containing only spaces.
                     let str_value = GString::from_variant(&property_value);
                     if !str_value.to_string().trim().is_empty() {
-                        parsed_strings.push(str_value.into());
+                        parsed_strings.push(str_value);
                     }
                 }
             }
         }
 
         // Assume that ids = messages.
-        return parsed_strings
+        parsed_strings
             .into_iter()
             .map(|string| (string.to_string(), string.to_string()))
-            .collect();
+            .collect()
     }
 }
 
@@ -183,18 +183,19 @@ impl FluentPackedSceneTranslationParser {
 
     fn match_property(&self, property_name: &StringName, node_type: &StringName) -> bool {
         let class_db = ClassDb::singleton();
-        
+
         for (exception_node_type, exception_properties) in &self.exception_list {
-            if class_db.is_parent_class(node_type.clone(), exception_node_type.clone()) {
-                if exception_properties.iter().any(|exception_property| Self::matches(GString::from(property_name), exception_property.clone())) {
-                    return false;
-                }
+            if class_db.is_parent_class(node_type.clone(), exception_node_type.clone()) &&
+                exception_properties.iter().any(|exception_property|
+                    Self::matches(GString::from(property_name), exception_property.clone())
+            ) {
+                return false;
             }
         }
-        if self.lookup_properties.iter().any(|lookup_property| Self::matches(GString::from(property_name), lookup_property.clone())) {
-            return true;
-        }
-        return false;
+
+        self.lookup_properties.iter().any(|lookup_property|
+            Self::matches(GString::from(property_name), lookup_property.clone())
+        )
     }
 
     fn matches(string: GString, pattern: Gd<RegEx>) -> bool {
