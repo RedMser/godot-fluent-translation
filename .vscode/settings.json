@@ -1,4 +1,6 @@
 {
     "godotTools.editorPath.godot4": "./build/godot.windows.editor.x86_64.exe",
     "rust-analyzer.cargo.features": ["forked-godot"],
+    "files.trimFinalNewlines": true,
+    "files.insertFinalNewline": true,
 }
