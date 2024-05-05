@@ -28,7 +28,7 @@ impl FluentGenerator {
     pub fn create() -> Gd<Self> {
         let project_settings = ProjectSettings::singleton();
         let locales = PackedStringArray::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_LOCALES.into()));
-        let locales = locales.as_slice().into_iter().map(|s| s.to_string()).collect();
+        let locales = locales.as_slice().iter().map(|s| s.to_string()).collect();
         let file_patterns = Dictionary::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_PATTERNS.into()));
         let file_patterns = file_patterns.iter_shared().map(|(k, v)| {
             let k = GString::from_variant(&k);
@@ -45,7 +45,7 @@ impl FluentGenerator {
     }
 
     #[func]
-    pub fn generate(&self) -> () {
+    pub fn generate(&self) {
         // Collect source files and batched write operations.
         let files = self.get_matching_files();
         let mut generate_tasks = HashMap::<String, MessageGeneration>::new();
@@ -67,7 +67,7 @@ impl FluentGenerator {
                             return Some((safe_id, message));
                         }
                     }
-                    return Some((id, message));
+                    Some((id, message))
                 });
                 entry.or_default().extend(&mut messages);
             }
@@ -102,7 +102,7 @@ impl FluentGenerator {
                         godot_warn!("File {str} matched generator rule \"{regex_str} -> {pattern}\" but has unrecognized extension {extension}, ignoring.");
                         return None;
                     }
-                    return Some(regex_match);
+                    Some(regex_match)
                 })
             })
             .collect()
@@ -112,7 +112,7 @@ impl FluentGenerator {
         self.locales
             .iter()
             .map(|locale| {
-                let mut pattern = pattern.replace("{$locale}", &locale);
+                let mut pattern = pattern.replace("{$locale}", locale);
                 for group_index in 0..=source_match.get_group_count() {
                     let group_value = source_match.get_string_ex().name(group_index.to_variant()).done();
                     pattern = pattern.replace(&format!("{{${}}}", group_index), &group_value.to_string());
@@ -123,7 +123,7 @@ impl FluentGenerator {
             .collect()
     }
 
-    fn create_or_update_ftl(path: String, messages: MessageGeneration) -> () {
+    fn create_or_update_ftl(path: String, messages: MessageGeneration) {
         // Load existing or create new FTL file.
         let fa = create_or_open_file_for_read_write(path.clone().into());
         if fa.is_err() {
