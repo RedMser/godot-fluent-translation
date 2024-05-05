@@ -40,8 +40,20 @@ If any interest for older Godot versions exist, consider tackling these compatib
 
 ## Platform Compatibility
 
-I've only compiled the extension for **Windows** 64-bit so far, tested on Windows 10.
-If you wish to help out with the [CI/CD](https://github.com/RedMser/godot-fluent-translation/issues/17), we can find out which other platforms are supported and provide releases for them as well!
+| Platform | Fork Build | GDExtension Build | Both Tested |
+|----------|------------|-------------------|-------------|
+| Windows  | ✅          | ✅                 | ✅           |
+| macOS    | ✅          | ❌                 | ❌           |
+| Linux    | ✅          | ✅                 | ❌           |
+| iOS      | ✅          | ❌                 | ❌           |
+| Android  | ✅          | ❌                 | ❌           |
+| Web      | ✅          | ❌                 | ❌           |
+
+A platform has a **Fork Build** if a [forked Godot release](https://github.com/RedMser/godot/releases) exists for it.
+A platform has a **GDExtension Build** if the [GDExtension release CI/CD](https://github.com/RedMser/godot-fluent-translation/releases) targets this platform.
+A platform is considered **Both Tested** if both the forked Godot release runs (editor or template), and the GDExtension works as expected.
+
+[See here](https://github.com/RedMser/godot-fluent-translation/issues/22) if you want to add more checkmarks to this table!
 
 ## Build Instructions
 

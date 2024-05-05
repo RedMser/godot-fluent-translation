@@ -1,4 +1,4 @@
-name: Compile
+name: Ensure build works
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  compile-windows:
+  compile-windows-forked:
     name: Windows [Forked]
     runs-on: windows-latest
     steps:
@@ -17,18 +17,20 @@ jobs:
         name: Download Forked Godot
         with:
           latest: true
-          fileName: 'FORKED_godot.windows.editor.x86_64.exe'
+          repository: RedMser/godot
+          fileName: 'windows-editor.zip'
+          extract: true
           out-file-path: ./build
       - name: Set executable env var
-        run: echo "GODOT4_BIN=$env:GITHUB_WORKSPACE/build/FORKED_godot.windows.editor.x86_64.exe" >> $env:GITHUB_ENV
+        run: echo "GODOT4_BIN=$env:GITHUB_WORKSPACE/build/godot.windows.editor.x86_64.exe" >> $env:GITHUB_ENV
       - name: Build
         working-directory: ./rust
         run: cargo build --features forked-godot
       - uses: actions/upload-artifact@v4
         with:
-          name: FORKED_godot_fluent_translation_windows.dll
+          name: forked.windows.godot_fluent_translation.debug
           path: rust/target/debug/godot_fluent_translation.dll
-  compile-linux:
+  compile-linux-default:
     name: Linux [Default]
     runs-on: ubuntu-latest
     steps:
@@ -50,5 +52,5 @@ jobs:
         run: cargo build --features custom-godot
       - uses: actions/upload-artifact@v4
         with:
-          name: DEFAULT_godot_fluent_translation_linux.so
+          name: default.linux.godot_fluent_translation.debug
           path: rust/target/debug/libgodot_fluent_translation.so
