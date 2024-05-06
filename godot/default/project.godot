@@ -10,19 +10,17 @@ config_version=5
 
 [application]
 
-config/name="Fluent Translation Demo"
+config/name="Fluent Translation Demo [Default]"
 run/main_scene="res://localization.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://test.fr.ftl")
 fluent/generator/locales=PackedStringArray("en", "de")
 fluent/generator/file_patterns={
 "(.+)\\.tscn": "res://i18n/{$1}.{$locale}.ftl"
 }
-fluent/parse_args_in_message=true
 
 [rendering]
 

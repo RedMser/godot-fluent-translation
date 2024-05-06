@@ -1,0 +1,30 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Fluent Translation Demo [Forked]"
+run/main_scene="res://localization.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://test.fr.ftl")
+fluent/generator/locales=PackedStringArray("en", "de")
+fluent/generator/file_patterns={
+"(.+)\\.tscn": "res://i18n/{$1}.{$locale}.ftl"
+}
+fluent/parse_args_in_message=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

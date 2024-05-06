@@ -45,8 +45,8 @@ This is why you have the choice between a version that has better engine support
     - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
     - **Forked**: [Download forked builds here.](https://github.com/RedMser/godot/releases)
 - Start Godot editor. If it was already running, restart it to fix autocompletion.
-- Follow the sample code to see if installation was successful. Remove any code which contains errors, depending on the version you've installed.
-    - You can also try the sample project in the `godot` folder of this repository.
+- Follow the sample code to see if installation was successful. Remove any code which contains errors, as some of it only works depending on the version you've installed.
+    - You can also try one of the sample projects in the `godot` folder of this repository.
 
 ## Code Sample
 

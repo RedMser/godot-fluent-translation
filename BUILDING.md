@@ -67,7 +67,6 @@ A platform is considered **Both Tested** if both the forked Godot release runs (
   * Default: `cargo build --features default-godot`
   * Custom: `cargo build --features custom-godot`
   * Forked: `cargo build --features forked-godot`
-* The build should complete without errors and produce a library file inside `rust/target/debug` named e.g. `rust.dll`
+* The build should complete without errors and produce a library file inside `rust/target/debug` named e.g. `godot_fluent_translation.dll`.
 
-You should now be able to launch the Godot editor using the same version that was used for building, and import the demo project found in the `godot` folder.
-You will have to comment out any code that has incompatible method signatures, as there is no conditional compilation in GDScript.
+You should now be able to launch the Godot editor using the same version that was used for building, and import the default or forked demo project found in the `godot` folder.
