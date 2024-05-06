@@ -43,5 +43,19 @@ offset_right = 101.062
 offset_bottom = 144.0
 update_on_text_changed = true
 
+[node name="Label3" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 9.0
+offset_top = -83.0
+offset_right = 327.0
+offset_bottom = -8.0
+grow_vertical = 0
+text = "- en translation is loaded via single file
+- de translations are loaded from a folder
+- pt translation is specified inline"
+
 [connection signal="text_changed" from="Lang" to="." method="_on_lang_text_changed"]
 [connection signal="value_changed" from="SpinBox" to="." method="_on_spin_box_value_changed"]

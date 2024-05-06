@@ -1,0 +1,62 @@
+[gd_scene load_steps=2 format=3 uid="uid://4w8ncdkbd1ov"]
+
+[ext_resource type="Script" path="res://localization_test.gd" id="1_b7h8g"]
+
+[node name="Localization" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_b7h8g")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 21.0
+offset_right = 75.0
+offset_bottom = 44.0
+text = "HELLO"
+
+[node name="Label2" type="Label" parent="."]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 164.0
+offset_right = 76.0
+offset_bottom = 187.0
+text = "HELLO"
+
+[node name="Lang" type="LineEdit" parent="."]
+layout_mode = 0
+offset_left = 19.0
+offset_top = 73.0
+offset_right = 86.0625
+offset_bottom = 104.0
+text = "en"
+
+[node name="SpinBox" type="SpinBox" parent="."]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 113.0
+offset_right = 101.062
+offset_bottom = 144.0
+update_on_text_changed = true
+
+[node name="Label3" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -115.0
+offset_right = 346.0
+offset_bottom = -14.0
+grow_vertical = 0
+text = "- fr translation is loaded via Project Settings
+- en translation is loaded via single file
+- de translations are loaded from a folder
+- pt translation is specified inline"
+
+[connection signal="text_changed" from="Lang" to="." method="_on_lang_text_changed"]
+[connection signal="value_changed" from="SpinBox" to="." method="_on_spin_box_value_changed"]
