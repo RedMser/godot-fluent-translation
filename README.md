@@ -6,6 +6,12 @@
 
 ![Demo project](./docs/demo.gif)
 
+## Features
+
+- Load .ftl translation files via the `TranslationFluent` resource or Project Settings.
+- Support for args (variables) and attributes.
+- Generate .ftl files from scene files via the `FluentGenerator` singleton.
+
 ## Available Versions
 
 **If you simply wish to download and install this extension, keep reading.**
