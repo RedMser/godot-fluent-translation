@@ -13,7 +13,7 @@ config_version=5
 config/name="Fluent Translation Demo [Forked]"
 run/main_scene="res://localization.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://logo.png"
 
 [internationalization]
 
