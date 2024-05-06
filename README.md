@@ -10,7 +10,7 @@
 
 - Load .ftl translation files via the `TranslationFluent` resource or Project Settings.
 - Support for args (variables) and attributes.
-- Generate .ftl files from scene files via the `FluentGenerator` singleton.
+- Generate .ftl files from scene files via the [`FluentGenerator`](#ftl-generator) singleton.
 
 ## Available Versions
 
@@ -23,6 +23,7 @@ This extension can be downloaded in two different versions, each with their own 
 ### Default
 
 - Works with official releases of [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
+- Available on the [Asset Library](https://godotengine.org/asset-library/asset/2937).
 - Has some limitations
     - Translations that use variables are written like `tr(TranslationFluent.args("message", { ... }))`
         - Requires [`internationalization/fluent/parse_args_in_message`](#project-settings) to be enabled.
@@ -35,18 +36,27 @@ This extension can be downloaded in two different versions, each with their own 
     - Translations that use variables can be written like `tr("message", { ... })`
     - Translation files can be loaded via code or via Project Settings.
 
+<details>
+<summary>
+    
 ### Why two versions?
+
+</summary>
+
 
 Due to Godot's translation system being very inflexible, it is not possible for an extension to modify certain parts about it.
 While I'd love for all features to work with the official version of Godot, it is unlikely for [all of my changes](https://github.com/RedMser/godot-fluent-translation/issues/11) to be included in any upcoming version.
 
 This is why you have the choice between a version that has better engine support, or one that "just works".
 
+</details>
+
 ## Installation
 
 - Decide which extension version you want to use (see above).
-- Download the corresponding [zip release](https://github.com/RedMser/godot-fluent-translation/releases) for your platform and version.
-- Extract the zip file contents to your project folder.
+- Download the corresponding [zip release](https://github.com/RedMser/godot-fluent-translation/releases).
+    - The **Default** version is also available on the [Asset Library](https://godotengine.org/asset-library/asset/2937).
+- Extract the zip file contents to your project folder, so that the project root contains an `addons` folder.
 - Download a compatible version of Godot.
     - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
     - **Forked**: [Download forked builds here.](https://github.com/RedMser/godot/releases)
@@ -114,6 +124,7 @@ func _notification(what: int) -> void:
 * `internationalization/fluent/generator/locales`: See below.
 * `internationalization/fluent/generator/file_patterns`: See below.
 * `internationalization/fluent/generator/invalid_message_handling`: If a message identifier is invalid (e.g. contains symbols or spaces), should it be skipped or should the invalid symbols be replaced with underscores?
+* `Localization` tab → `Translations` tab: Add .ftl files in this page to automatically load them on startup (Forked version only).
 * `internationalization/locale/fallback`: Fallback locale is used when the selected language does not have a date/time/number formatter available.
 
 > [!TIP]
