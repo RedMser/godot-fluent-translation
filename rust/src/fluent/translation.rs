@@ -9,7 +9,7 @@ use godot::engine::{ITranslation, ProjectSettings, Translation};
 use godot::engine::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
-use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE};
+use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE, PROJECT_SETTING_UNICODE_ISOLATION};
 
 #[derive(GodotClass)]
 #[class(base=Translation)]
@@ -180,8 +180,10 @@ impl TranslationFluent {
     }
 
     fn extract_args(msg: StringName) -> (StringName, Dictionary) {
-        let project_settings = ProjectSettings::singleton();
-        let parse_args_in_message = bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE.into()));
+        let parse_args_in_message = {
+            let project_settings = ProjectSettings::singleton();
+            bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE.into()))
+        };
         if parse_args_in_message {
             // Try parsing trailing dict as args.
             let msg_str = msg.to_string();
@@ -222,9 +224,10 @@ impl TranslationFluent {
         match lang_id {
             Err(err) => Self::map_langid_error(err),
             Ok(lang_id) => {
+                let project_settings = ProjectSettings::singleton();
                 let mut locales = vec![lang_id];
                 // Use TranslationServer fallback if it exists (same check as TS::translate).
-                let fallback_locale = ProjectSettings::singleton().get_setting(PROJECT_SETTING_FALLBACK_LOCALE.into()).stringify();
+                let fallback_locale = project_settings.get_setting(PROJECT_SETTING_FALLBACK_LOCALE.into()).stringify();
                 if fallback_locale.len() >= 2 {
                     let fallback_locale_id = fallback_locale.to_string().parse::<LanguageIdentifier>();
                     match fallback_locale_id {
@@ -235,7 +238,7 @@ impl TranslationFluent {
                     }
                 }
                 let mut bundle = FluentBundle::new(locales);
-                // bundle.set_use_isolating(false);
+                bundle.set_use_isolating(bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION.into())));
                 let err = Self::map_fluent_error(&bundle.add_resource(res));
                 bundles.push(bundle);
                 err
