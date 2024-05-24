@@ -118,6 +118,7 @@ func _notification(what: int) -> void:
 
 ## Project Settings
 
+* `internationalization/fluent/use_unicode_isolation`: When mixing RTL with LTR languages, enable this to insert additional control characters for forcing the correct reading direction. See [this page](https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation) for a more detailed explanation.
 * `internationalization/fluent/parse_args_in_message`: Decides whether variables can be filled via the message parameter. This is the only way to pass args when using the [Default](#default) version, so only makes sense to use in that case.
 * `internationalization/fluent/locale_by_file_regex`: If specified, file name is first checked for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
 * `internationalization/fluent/locale_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
