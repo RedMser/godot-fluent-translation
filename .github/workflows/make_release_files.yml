@@ -47,12 +47,12 @@ jobs:
         name: Download Latest Godot
         with:
           repository: 'godotengine/godot-builds'
-          fileName: 'Godot_v4.3-dev6_win64.exe.zip'
-          tag: '4.3-dev6'
+          fileName: 'Godot_v4.3-beta3_win64.exe.zip'
+          tag: '4.3-beta3'
           extract: true
           out-file-path: ./build
       - name: Set executable env var
-        run: echo "GODOT4_BIN=$env:GITHUB_WORKSPACE/build/Godot_v4.3-dev6_win64.exe" >> $env:GITHUB_ENV
+        run: echo "GODOT4_BIN=$env:GITHUB_WORKSPACE/build/Godot_v4.3-beta3_win64.exe" >> $env:GITHUB_ENV
       - name: Build Debug
         working-directory: ./rust
         run: cargo build --features custom-godot
@@ -111,14 +111,14 @@ jobs:
         name: Download Latest Godot
         with:
           repository: 'godotengine/godot-builds'
-          fileName: 'Godot_v4.3-dev6_linux.x86_64.zip'
-          tag: '4.3-dev6'
+          fileName: 'Godot_v4.3-beta3_linux.x86_64.zip'
+          tag: '4.3-beta3'
           extract: true
           out-file-path: ./build
       - name: Make downloaded file executable
-        run: chmod +x ./build/Godot_v4.3-dev6_linux.x86_64
+        run: chmod +x ./build/Godot_v4.3-beta3_linux.x86_64
       - name: Set executable env var
-        run: echo "GODOT4_BIN=$GITHUB_WORKSPACE/build/Godot_v4.3-dev6_linux.x86_64" >> $GITHUB_ENV
+        run: echo "GODOT4_BIN=$GITHUB_WORKSPACE/build/Godot_v4.3-beta3_linux.x86_64" >> $GITHUB_ENV
       - name: Build Debug
         working-directory: ./rust
         run: cargo build --features custom-godot
