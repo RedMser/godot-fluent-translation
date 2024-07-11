@@ -5,7 +5,7 @@ use fluent::types::{FluentNumber, FluentNumberOptions};
 use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue};
 use godot::engine::utilities::{str_to_var, var_to_str};
 use godot::prelude::*;
-use godot::engine::{ITranslation, ProjectSettings, Translation};
+use godot::engine::{ITranslation, ProjectSettings, RegEx, Translation};
 use godot::engine::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
@@ -14,6 +14,9 @@ use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_P
 #[derive(GodotClass)]
 #[class(base=Translation)]
 pub struct TranslationFluent {
+    #[var(get = get_message_pattern, set = set_message_pattern)]
+    message_pattern: GString,
+    message_pattern_regex: Option<Gd<RegEx>>,
     bundles: Arc<RwLock<Vec<FluentBundle<FluentResource>>>>,
     base: Base<Translation>,
 }
@@ -28,6 +31,8 @@ impl ITranslation for TranslationFluent {
         base.to_gd().set_locale(GString::new());
 
         Self {
+            message_pattern: GString::new(),
+            message_pattern_regex: None,
             bundles: Arc::new(RwLock::new(Vec::new())),
             base,
         }
@@ -51,12 +56,45 @@ impl ITranslation for TranslationFluent {
 
 #[godot_api]
 impl TranslationFluent {
+    #[func]
+    pub fn get_message_pattern(&self) -> GString {
+        self.message_pattern_regex.clone().map_or(GString::new(), |regex| regex.get_pattern())
+    }
+
+    #[func]
+    pub fn set_message_pattern(&mut self, value: GString) {
+        self.message_pattern_regex = if value.is_empty() {
+            None
+        } else {
+            RegEx::create_from_string(value)
+        };
+    }
+
     fn get_message_impl(&self, src_message: StringName, args: Dictionary, context: StringName) -> StringName {
-        let (msg, args) = if args.is_empty() {
-            Self::extract_args(src_message)
+        let (mut msg, args) = if args.is_empty() {
+            Self::extract_args(src_message.clone())
         } else {
             (src_message, args)
         };
+
+        if let Some(regex) = &self.message_pattern_regex {
+            // Get actual message and see if it matches.
+            if let Some(regex_match) = regex.search(msg.into()) {
+                // Ensure there is only one capture group.
+                if regex_match.get_group_count() > 1 {
+                    godot_warn!(
+                        "message_pattern is set to a RegEx with {} capture groups. Only one should be capturing, the rest should be (?:) non-capturing. \nUsing last capture group as a fallback.",
+                        regex_match.get_group_count()
+                    );
+                }
+
+                // Get the last capture group's value.
+                msg = regex_match.get_string_ex().name(regex_match.get_group_count().to_variant()).done().into();
+            } else {
+                // Did not match, can not translate.
+                return StringName::default();
+            }
+        }
 
         let bundles = self.bundles.read().unwrap();
 
