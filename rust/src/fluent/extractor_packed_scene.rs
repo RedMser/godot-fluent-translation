@@ -141,7 +141,7 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
                             parsed_strings.push(GString::from(desc));
                         }
                     }
-                } else if property_value.get_type() == VariantType::String {
+                } else if property_value.get_type() == VariantType::STRING {
                     // Prevent reading text containing only spaces.
                     let str_value = GString::from_variant(&property_value);
                     if !str_value.to_string().trim().is_empty() {

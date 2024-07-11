@@ -112,22 +112,22 @@ impl TranslationFluent {
 
     fn variant_to_fluent<'a>(input: Variant) -> FluentValue<'a> {
         match input.get_type() {
-            VariantType::String | VariantType::StringName | VariantType::NodePath => {
+            VariantType::STRING | VariantType::STRING_NAME | VariantType::NODE_PATH => {
                 let stringified = input.stringify();
                 let stringified = String::from(stringified);
                 FluentValue::String(Cow::Owned(stringified))
             },
-            VariantType::Int => {
+            VariantType::INT => {
                 let casted: i64 = input.to();
                 let mut options = FluentNumberOptions::default();
                 options.maximum_fraction_digits = Some(0);
                 FluentValue::Number(FluentNumber::new(casted as f64, options))
             }
-            VariantType::Float => {
+            VariantType::FLOAT => {
                 let casted: f64 = input.to();
                 FluentValue::Number(FluentNumber::new(casted, Default::default()))
             }
-            VariantType::Nil => FluentValue::None,
+            VariantType::NIL => FluentValue::None,
             _ => FluentValue::Error,
         }
     }
@@ -192,7 +192,7 @@ impl TranslationFluent {
                 if let Some(open_brace) = open_brace {
                     let args = &msg_str[open_brace..];
                     let args = str_to_var(args.into());
-                    if args.get_type() != VariantType::Dictionary {
+                    if args.get_type() != VariantType::DICTIONARY {
                         return (msg, Default::default());
                     }
                     let args = Dictionary::from_variant(&args);

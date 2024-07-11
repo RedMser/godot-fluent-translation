@@ -22,7 +22,7 @@ pub fn register() {
     register_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE.to_string(), cfg!(not(feature = "forked-godot")).to_variant());
     register_setting(PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX.to_string(), "^.+$".to_variant());
     register_setting(PROJECT_SETTING_LOCALE_BY_FILE_REGEX.to_string(), "\\.(.+?)\\.ftl$".to_variant());
-    register_setting_hint(PROJECT_SETTING_GENERATOR_LOCALES.to_string(), PackedStringArray::new().to_variant(), PropertyHint::NONE, format!("{}/{}:", VariantType::String as i32, PropertyHint::LOCALE_ID.ord()));
+    register_setting_hint(PROJECT_SETTING_GENERATOR_LOCALES.to_string(), PackedStringArray::new().to_variant(), PropertyHint::NONE, format!("{}/{}:", VariantType::STRING.ord(), PropertyHint::LOCALE_ID.ord()));
     register_setting(PROJECT_SETTING_GENERATOR_PATTERNS.to_string(), Dictionary::new().to_variant());
     register_setting_hint(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING.to_string(), 0.to_variant(), PropertyHint::ENUM, "Skip message,Convert to valid".into());
 }
