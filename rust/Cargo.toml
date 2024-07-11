@@ -19,5 +19,5 @@ constcat = "0.5.0"
 fluent = { git = "https://github.com/projectfluent/fluent-rs", branch = "main" }
 fluent-syntax = { git = "https://github.com/projectfluent/fluent-rs", branch = "main" }
 godot = { git = "https://github.com/godot-rust/gdext", branch = "master", features = ["experimental-threads"] }
-itertools = "0.12.1"
+itertools = "0.13.0"
 unic-langid = "0.9.4"

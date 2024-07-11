@@ -23,7 +23,7 @@ If you are compiling Godot engine yourself, you might want to consider **Forked*
 
 ### Forked
 
-For this option, you must use a specialized custom build of the Godot engine, which has [the changes of this PR](https://github.com/RedMser/godot/pull/2) applied to it.
+For this option, you must use a specialized custom build of the Godot engine, which has [the changes of the fluent-translation branch](https://github.com/RedMser/godot/tree/fluent-translation) applied to it.
 
 As explained in the [Available Versions](./README.md#forked) section of the readme, this option provides the best engine integration, and should be preferred whenever you are already doing a custom Godot engine build anyway.
 
