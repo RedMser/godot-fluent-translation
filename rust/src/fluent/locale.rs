@@ -1,16 +1,55 @@
 use std::path::{self, PathBuf};
 
-use godot::engine::{ProjectSettings, RegEx};
+use godot::engine::{ProjectSettings, RegEx, RegExMatch};
 use godot::prelude::*;
 use unic_langid::LanguageIdentifier;
 
 use super::project_settings::*;
 
+pub fn compute_message_pattern(path: &PathBuf) -> Option<Gd<RegExMatch>> {
+    let project_settings = ProjectSettings::singleton();
+
+    // Requires pattern string as well.
+    if project_settings.get_setting(PROJECT_SETTING_LOADER_MESSAGE_PATTERN.into()).stringify().is_empty() {
+        return None;
+    }
+
+    // 1. File regex.
+    let file_regex = project_settings.get_setting(PROJECT_SETTING_LOADER_PATTERN_BY_FILE_REGEX.into()).stringify();
+    if !file_regex.is_empty() {
+        let file_name = path.file_name()?;
+        let file_name = GString::from(file_name.to_owned().into_string().unwrap());
+        let file_regex = RegEx::create_from_string(file_regex).unwrap();
+        if let Some(regex_match) = file_regex.search(file_name) {
+            return Some(regex_match);
+        }
+    }
+
+    // 2. Folder regex.
+    let folder_regex = project_settings.get_setting(PROJECT_SETTING_LOADER_PATTERN_BY_FOLDER_REGEX.into()).stringify();
+    if !folder_regex.is_empty() {
+        let folder_regex = RegEx::create_from_string(folder_regex).unwrap();
+        for folder in path.iter().rev() {
+            let folder = folder.to_owned().into_string().unwrap();
+            if folder == path::MAIN_SEPARATOR_STR {
+                continue;
+            }
+
+            if let Some(regex_match) = folder_regex.search(folder.into()) {
+                return Some(regex_match);
+            }
+        }
+    }
+
+    // Unable to find a message pattern.
+    None
+}
+
 pub fn compute_locale(path: &PathBuf) -> Option<String> {
     let project_settings = ProjectSettings::singleton();
 
     // 1. File regex.
-    let file_regex = project_settings.get_setting(PROJECT_SETTING_LOCALE_BY_FILE_REGEX.into()).stringify();
+    let file_regex = project_settings.get_setting(PROJECT_SETTING_LOADER_LOCALE_BY_FILE_REGEX.into()).stringify();
     if !file_regex.is_empty() {
         let file_name = path.file_name()?;
         let file_name = GString::from(file_name.to_owned().into_string().unwrap());
@@ -22,7 +61,7 @@ pub fn compute_locale(path: &PathBuf) -> Option<String> {
             if regex_match.get_group_count() > 1 {
                 godot_warn!(
                     "{} is set to a RegEx with {} capture groups. Only one should be capturing, the rest should be (?:) non-capturing. \nUsing last capture group as a fallback.",
-                    PROJECT_SETTING_LOCALE_BY_FILE_REGEX, regex_match.get_group_count()
+                    PROJECT_SETTING_LOADER_LOCALE_BY_FILE_REGEX, regex_match.get_group_count()
                 );
             }
 
@@ -35,7 +74,7 @@ pub fn compute_locale(path: &PathBuf) -> Option<String> {
     }
 
     // 2. Folder regex.
-    let folder_regex = project_settings.get_setting(PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX.into()).stringify();
+    let folder_regex = project_settings.get_setting(PROJECT_SETTING_LOADER_LOCALE_BY_FOLDER_REGEX.into()).stringify();
     if !folder_regex.is_empty() {
         // Force regex to be case insensitive.
         let folder_regex = "(?i)".to_owned() + &folder_regex.to_string();
@@ -51,7 +90,7 @@ pub fn compute_locale(path: &PathBuf) -> Option<String> {
                 if regex_match.get_group_count() > 1 {
                     godot_warn!(
                         "{} is set to a RegEx with {} capture groups. Only one should be capturing, the rest should be (?:) non-capturing. \nUsing last capture group as a fallback.",
-                        PROJECT_SETTING_LOCALE_BY_FOLDER_REGEX, regex_match.get_group_count()
+                        PROJECT_SETTING_LOADER_LOCALE_BY_FOLDER_REGEX, regex_match.get_group_count()
                     );
                 }
     

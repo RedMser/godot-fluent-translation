@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
-use godot::{engine::{FileAccess, IResourceFormatLoader, ResourceFormatLoader}, prelude::*};
+use godot::{engine::{FileAccess, IResourceFormatLoader, ProjectSettings, RegEx, ResourceFormatLoader}, prelude::*};
 use godot::engine::global::Error as GdErr;
 
-use super::{locale::compute_locale, TranslationFluent};
+use super::{locale::{compute_locale, compute_message_pattern}, project_settings::*, TranslationFluent};
 
 #[derive(GodotClass)]
 #[class(base=ResourceFormatLoader)]
@@ -51,6 +51,27 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
 
         let mut translation = TranslationFluent::new_gd();
         translation.bind_mut().base_mut().set_locale(locale.unwrap().into());
+
+        let pattern_match = compute_message_pattern(&path_buf);
+        if let Some(pattern_match) = pattern_match {
+            let mut pattern_target = String::from_godot(ProjectSettings::singleton().get_setting(PROJECT_SETTING_LOADER_MESSAGE_PATTERN.into()).stringify());
+            for group_index in 0..=pattern_match.get_group_count() {
+                let group_value = pattern_match.get_string_ex().name(group_index.to_variant()).done();
+                pattern_target = pattern_target.replace(&format!("{{${}}}", group_index), &group_value.to_string());
+            }
+
+            let pattern_target = GString::from(pattern_target);
+            let pattern_regex = RegEx::create_from_string(pattern_target.clone()).unwrap();
+            if pattern_regex.get_group_count() != 1 {
+                godot_warn!(
+                    "Expected {} to have exactly one capture group, but got {} instead.\nIgnoring message pattern!", 
+                    PROJECT_SETTING_LOADER_MESSAGE_PATTERN, pattern_regex.get_group_count()
+                );
+            } else {
+                translation.bind_mut().set_message_pattern(pattern_target);
+            }
+        }
+
         let err = translation.bind_mut().add_bundle_from_text(text.to_string());
         if err != GdErr::OK {
             return err.ord().to_variant();

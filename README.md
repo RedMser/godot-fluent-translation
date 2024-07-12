@@ -118,18 +118,34 @@ func _notification(what: int) -> void:
 
 ## Project Settings
 
+> [!TIP]
+> If you don't see some of these settings, make sure you have Advanced Settings enabled.
+
+### General
+
+* `Localization` tab → `Translations` tab: Add .ftl files in this page to automatically load them on startup (Forked version only).
+* `internationalization/locale/fallback`: Fallback locale is used when the selected language does not have a date/time/number formatter available.
 * `internationalization/fluent/use_unicode_isolation`: When mixing RTL with LTR languages, enable this to insert additional control characters for forcing the correct reading direction. See [this page](https://github.com/projectfluent/fluent.js/wiki/Unicode-Isolation) for a more detailed explanation.
 * `internationalization/fluent/parse_args_in_message`: Decides whether variables can be filled via the message parameter. This is the only way to pass args when using the [Default](#default) version, so only makes sense to use in that case.
-* `internationalization/fluent/locale_by_file_regex`: If specified, file name is first checked for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
-* `internationalization/fluent/locale_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
+
+### Loader
+
+These settings only apply to translation files loaded by `load()` or via project settings.
+For manually created `TranslationFluent` instances, custom logic can be implemented to emulate these settings.
+
+* `internationalization/fluent/loader/locale_by_file_regex`: If specified, file name is first checked for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
+* `internationalization/fluent/loader/locale_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for locale via regex. Can contain a capture group which matches a possible locale. Always case-insensitive.
+* `internationalization/fluent/loader/pattern_by_file_regex`: If specified, file name is first checked for message pattern via regex. Can contain capture groups which can later be used construct the message pattern. Can be made case-insensitive by prefixing with `(?i)`.
+* `internationalization/fluent/loader/pattern_by_folder_regex`: If specified, the folder hierarchy is secondly traversed to check for message pattern via regex. Can contain capture groups which can later be used construct the message pattern. Can be made case-insensitive by prefixing with `(?i)`.
+* `internationalization/fluent/loader/message_pattern`: If specified together with `pattern_by_*_regex`, decides how the pattern should be formatted. The placeholder `{$n}` is replaced with the n-th capture group (so `{$1}` would contain the first capture group that matched). A single capture group like `(.+)` must be specified to capture the actual message. Can be made case-insensitive by prefixing with `(?i)`.
+
+### Generator
+
+These settings apply to the `FluentGenerator` singleton:
+
 * `internationalization/fluent/generator/locales`: See below.
 * `internationalization/fluent/generator/file_patterns`: See below.
 * `internationalization/fluent/generator/invalid_message_handling`: If a message identifier is invalid (e.g. contains symbols or spaces), should it be skipped or should the invalid symbols be replaced with underscores?
-* `Localization` tab → `Translations` tab: Add .ftl files in this page to automatically load them on startup (Forked version only).
-* `internationalization/locale/fallback`: Fallback locale is used when the selected language does not have a date/time/number formatter available.
-
-> [!TIP]
-> If you don't see some of these settings, make sure you have Advanced Settings showing.
 
 ## FTL Generator
 
