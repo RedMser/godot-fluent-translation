@@ -1,8 +1,9 @@
+use std::fmt::Display;
 use std::path::PathBuf;
 
 use godot::engine::file_access::ModeFlags;
 use godot::engine::utilities::error_string;
-use godot::engine::FileAccess;
+use godot::engine::{FileAccess, RegExMatch};
 use godot::{engine::DirAccess, prelude::*};
 use godot::engine::global::Error as GdErr;
 
@@ -56,4 +57,17 @@ pub fn create_or_open_file_for_read_write(path: GString) -> Result<Gd<FileAccess
         return Err(FileAccess::get_open_error());
     }
     Ok(fa.unwrap())
+}
+
+pub fn get_single_regex_match<T: Display>(regex_match: Gd<RegExMatch>, err_source: T) -> GString {
+    // Ensure there is only one capture group.
+    if regex_match.get_group_count() > 1 {
+        godot_warn!(
+            "{} is set to a RegEx with {} capture groups. Only one should be capturing, the rest should be (?:) non-capturing.\nUsing last capture group as a fallback.",
+            err_source, regex_match.get_group_count()
+        );
+    }
+
+    // Get the last capture group's value.
+    regex_match.get_string_ex().name(regex_match.get_group_count().to_variant()).done()
 }
