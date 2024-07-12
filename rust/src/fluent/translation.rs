@@ -9,6 +9,8 @@ use godot::engine::{ITranslation, ProjectSettings, RegEx, Translation};
 use godot::engine::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
+use crate::utils::get_single_regex_match;
+
 use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE, PROJECT_SETTING_UNICODE_ISOLATION};
 
 #[derive(GodotClass)]
@@ -80,16 +82,7 @@ impl TranslationFluent {
         if let Some(regex) = &self.message_pattern_regex {
             // Get actual message and see if it matches.
             if let Some(regex_match) = regex.search(msg.into()) {
-                // Ensure there is only one capture group.
-                if regex_match.get_group_count() > 1 {
-                    godot_warn!(
-                        "message_pattern is set to a RegEx with {} capture groups. Only one should be capturing, the rest should be (?:) non-capturing. \nUsing last capture group as a fallback.",
-                        regex_match.get_group_count()
-                    );
-                }
-
-                // Get the last capture group's value.
-                msg = regex_match.get_string_ex().name(regex_match.get_group_count().to_variant()).done().into();
+                msg = get_single_regex_match(regex_match, "message_pattern").into();
             } else {
                 // Did not match, can not translate.
                 return StringName::default();
