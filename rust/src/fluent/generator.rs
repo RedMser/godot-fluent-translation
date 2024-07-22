@@ -11,6 +11,10 @@ use godot::global::Error as GdErr;
 
 use super::{project_settings::{INVALID_MESSAGE_HANDLING_SKIP, PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING, PROJECT_SETTING_GENERATOR_LOCALES, PROJECT_SETTING_GENERATOR_PATTERNS}, FluentPackedSceneTranslationParser, FluentTranslationParser};
 
+/// Allows generating Fluent Translation List (FTL) files by extracting keys.
+/// 
+/// For now, this class only supports [PackedScene] files and is completely loaded via Project Settings configuration.
+/// It may be updated in the future to receive a proper API and editor integration.
 #[derive(GodotClass)]
 #[class(no_init)]
 pub struct FluentGenerator {
@@ -26,6 +30,7 @@ pub type MessageGeneration = HashMap<String, String>;
 
 #[godot_api]
 impl FluentGenerator {
+    /// Create a new [FluentGenerator] instance using the Project Settings for configuration.
     #[func]
     pub fn create() -> Gd<Self> {
         let project_settings = ProjectSettings::singleton();
@@ -46,6 +51,9 @@ impl FluentGenerator {
         })
     }
 
+    /// Generate Fluent Translation List (FTL) files, creating or updating files as necessary.
+    /// If a message is already translated, it will not be updated.
+    /// Deleted keys are currently left untouched and must be manually purged.
     #[func]
     pub fn generate(&self) {
         // Collect source files and batched write operations.

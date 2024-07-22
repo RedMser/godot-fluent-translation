@@ -2,8 +2,9 @@ use godot::{classes::{EditorPlugin, IEditorPlugin}, prelude::*};
 
 use super::FluentExportPlugin;
 
+/// Editor plugin to register tools for Fluent Translations. For internal use only.
 #[derive(GodotClass)]
-#[class(tool, editor_plugin, init, base=EditorPlugin)]
+#[class(tool, init, base=EditorPlugin)]
 pub struct FluentEditorPlugin {
     export_plugin: Option<Gd<FluentExportPlugin>>,
     base: Base<EditorPlugin>,
