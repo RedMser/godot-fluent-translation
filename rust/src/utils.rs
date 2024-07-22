@@ -1,11 +1,11 @@
 use std::fmt::Display;
 use std::path::PathBuf;
 
-use godot::engine::file_access::ModeFlags;
-use godot::engine::utilities::error_string;
-use godot::engine::{FileAccess, RegExMatch};
-use godot::{engine::DirAccess, prelude::*};
-use godot::engine::global::Error as GdErr;
+use godot::classes::file_access::ModeFlags;
+use godot::classes::{DirAccess, FileAccess, RegExMatch};
+use godot::global::error_string;
+use godot::prelude::*;
+use godot::global::Error as GdErr;
 
 pub fn get_files_recursive(path: GString) -> Vec<GString> {
     let da = DirAccess::open(path.clone());

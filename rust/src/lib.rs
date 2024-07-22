@@ -1,6 +1,7 @@
 use crate::fluent::FluentI18nSingleton;
 use fluent::project_settings;
-use godot::{engine::Engine, prelude::*};
+use godot::prelude::*;
+use godot::classes::Engine;
 
 pub mod fluent;
 pub mod utils;
@@ -27,7 +28,7 @@ unsafe impl ExtensionLibrary for FluentI18n {
             singleton.bind().register();
 
             Engine::singleton()
-                .register_singleton(FluentI18nSingleton::SINGLETON_NAME.into(), singleton.upcast());
+                .register_singleton(FluentI18nSingleton::SINGLETON_NAME.into(), singleton);
         }
     }
 

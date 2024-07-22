@@ -3,10 +3,10 @@ use std::sync::{Arc, RwLock};
 
 use fluent::types::{FluentNumber, FluentNumberOptions};
 use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue};
-use godot::engine::utilities::{str_to_var, var_to_str};
 use godot::prelude::*;
-use godot::engine::{ITranslation, ProjectSettings, RegEx, Translation};
-use godot::engine::global::Error as GdErr;
+use godot::classes::{ITranslation, ProjectSettings, RegEx, Translation};
+use godot::global::{str_to_var, var_to_str};
+use godot::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
 use crate::utils::get_single_regex_match;

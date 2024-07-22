@@ -1,6 +1,6 @@
 use std::path::{self, PathBuf};
 
-use godot::engine::{ProjectSettings, RegEx, RegExMatch};
+use godot::classes::{ProjectSettings, RegEx, RegExMatch};
 use godot::prelude::*;
 use unic_langid::LanguageIdentifier;
 

@@ -1,7 +1,8 @@
 use std::path::PathBuf;
 
-use godot::{engine::{FileAccess, IResourceFormatLoader, ProjectSettings, RegEx, ResourceFormatLoader}, prelude::*};
-use godot::engine::global::Error as GdErr;
+use godot::prelude::*;
+use godot::classes::{FileAccess, IResourceFormatLoader, ProjectSettings, RegEx, ResourceFormatLoader};
+use godot::global::Error as GdErr;
 
 use super::{locale::{compute_locale, compute_message_pattern}, project_settings::*, TranslationFluent};
 
