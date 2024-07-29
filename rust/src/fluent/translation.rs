@@ -1,6 +1,4 @@
 use std::borrow::Cow;
-use std::sync::{Arc, RwLock};
-
 use fluent::types::{FluentNumber, FluentNumberOptions};
 use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue};
 use godot::prelude::*;
@@ -19,7 +17,7 @@ pub struct TranslationFluent {
     #[var(get = get_message_pattern, set = set_message_pattern)]
     message_pattern: GString,
     message_pattern_regex: Option<Gd<RegEx>>,
-    bundles: Arc<RwLock<Vec<FluentBundle<FluentResource>>>>,
+    bundle: Option<FluentBundle<FluentResource>>,
     base: Base<Translation>,
 }
 
@@ -35,7 +33,7 @@ impl ITranslation for TranslationFluent {
         Self {
             message_pattern: GString::new(),
             message_pattern_regex: None,
-            bundles: Arc::new(RwLock::new(Vec::new())),
+            bundle: None,
             base,
         }
     }
@@ -89,15 +87,7 @@ impl TranslationFluent {
             }
         }
 
-        let bundles = self.bundles.read().unwrap();
-
-        let result = bundles
-            .iter()
-            .filter_map(|bundle| {
-                Self::translate(bundle, &msg, &args.clone(), if context.is_empty() { None } else { Some(&context) })
-            })
-            .next();
-
+        let result = self.translate(&msg, &args.clone(), if context.is_empty() { None } else { Some(&context) });
         match result {
             Some(text) => StringName::from(text),
             None => StringName::default(),
@@ -180,7 +170,13 @@ impl TranslationFluent {
         output
     }
 
-    pub fn translate(bundle: &FluentBundle<FluentResource>, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
+    pub fn translate(&self, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
+        if self.bundle.is_none() {
+            godot_error!("Unable to translate before adding at least one FTL file to translation.");
+            return None;
+        }
+
+        let bundle = self.bundle.as_ref().unwrap();
         let message = bundle.get_message(&String::from(message_id));
         message.as_ref()?;
         let message = message.unwrap();
@@ -237,23 +233,50 @@ impl TranslationFluent {
     }
 
     #[func]
-    pub fn add_bundle_from_text(&mut self, text: String) -> GdErr {
+    pub fn append_from_text(&mut self, text: String) -> GdErr {
+        let bundle = match &mut self.bundle {
+            Some(bundle) => bundle,
+            None => &mut {
+                let bundle = self.create_bundle();
+                match bundle {
+                    Ok(bundle) => {
+                        self.bundle = Some(bundle);
+                        self.bundle.as_mut().unwrap()
+                    },
+                    Err(err) => return err
+                }
+            },
+        };
+
         let res = FluentResource::try_new(text);
         if res.is_err() {
             // TODO: I could give more parser error details here, and probably should? :)
             return GdErr::ERR_PARSE_ERROR;
         }
+        let res = res.unwrap();
+
+        Self::map_fluent_error(&bundle.add_resource(res))
+    }
+
+    fn create_bundle(&self) -> Result<FluentBundle<FluentResource>, GdErr> {
+        let mut bundle = FluentBundle::new(self.get_fluent_locales()?);
+        let project_settings = ProjectSettings::singleton();
+        bundle.set_use_isolating(bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION.into())));
+        Ok(bundle)
+    }
+
+    // TODO: Listen to NOTIFICATION_TRANSLATION_CHANGED on MainLoop. On notification, update the existing bundle's "locales" field.
+    fn get_fluent_locales(&self) -> Result<Vec<LanguageIdentifier>, GdErr> {
         let lang = self.base().get_locale();
         if lang.is_empty() {
             // Give a user-friendly message.
-            godot_error!("Failed to add bundle to TranslationFluent: locale has not been set.");
-            return GdErr::ERR_DOES_NOT_EXIST;
+            godot_error!("Failed to create bundle for TranslationFluent: locale has not been set.");
+            return Err(GdErr::ERR_DOES_NOT_EXIST);
         }
-        let res = res.unwrap();
-        let mut bundles = self.bundles.write().unwrap();
+
         let lang_id = String::from(lang).parse::<LanguageIdentifier>();
         match lang_id {
-            Err(err) => Self::map_langid_error(err),
+            Err(err) => Err(Self::map_langid_error(err)),
             Ok(lang_id) => {
                 let project_settings = ProjectSettings::singleton();
                 let mut locales = vec![lang_id];
@@ -262,17 +285,13 @@ impl TranslationFluent {
                 if fallback_locale.len() >= 2 {
                     let fallback_locale_id = fallback_locale.to_string().parse::<LanguageIdentifier>();
                     match fallback_locale_id {
-                        Err(err) => return Self::map_langid_error(err),
+                        Err(err) => return Err(Self::map_langid_error(err)),
                         Ok(fallback_locale_id) => {
                             locales.push(fallback_locale_id);
                         }
                     }
                 }
-                let mut bundle = FluentBundle::new(locales);
-                bundle.set_use_isolating(bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION.into())));
-                let err = Self::map_fluent_error(&bundle.add_resource(res));
-                bundles.push(bundle);
-                err
+                Ok(locales)
             }
         }
     }

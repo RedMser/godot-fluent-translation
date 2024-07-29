@@ -73,7 +73,7 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
             }
         }
 
-        let err = translation.bind_mut().add_bundle_from_text(text.to_string());
+        let err = translation.bind_mut().append_from_text(text.to_string());
         if err != GdErr::OK {
             return err.ord().to_variant();
         }
