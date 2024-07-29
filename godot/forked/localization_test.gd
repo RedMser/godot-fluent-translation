@@ -6,7 +6,7 @@ func _init():
 	var tr_foldername = load("res://de/german-test.ftl")
 	var tr_inline = TranslationFluent.new()
 	tr_inline.locale = "pt_PT"
-	var err_inline = tr_inline.add_bundle_from_text("""
+	var err_inline = tr_inline.append_from_text("""
 -term = email
 HELLO =
 	{ $unreadEmails ->

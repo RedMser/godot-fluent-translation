@@ -85,7 +85,7 @@ func _init():
 
     # Godot automatically converts spaces to tabs for multi-line strings, but tabs are invalid in
     # FTL syntax. So convert tabs to four spaces. Returns an error that you should handle.
-    var err_inline = tr_inline.add_bundle_from_text("""
+    var err_inline = tr_inline.append_from_text("""
 -term = email
 HELLO =
     { $unreadEmails ->

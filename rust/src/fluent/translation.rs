@@ -233,7 +233,7 @@ impl TranslationFluent {
     }
 
     #[func]
-    pub fn add_bundle_from_text(&mut self, text: String) -> GdErr {
+    pub fn append_from_text(&mut self, text: String) -> GdErr {
         let bundle = match &mut self.bundle {
             Some(bundle) => bundle,
             None => &mut {
