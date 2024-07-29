@@ -242,7 +242,7 @@ dependencies = [
 
 [[package]]
 name = "godot-fluent-translation"
-version = "0.1.1"
+version = "0.2.0"
 dependencies = [
  "constcat",
  "fluent",
