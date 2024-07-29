@@ -9,8 +9,10 @@
 ## Features
 
 - Load .ftl translation files via the `TranslationFluent` resource or Project Settings.
-- Support for args (variables) and attributes.
+- Support for args (variables), terms and attributes.
+- Register custom functions that can be called in placeables.
 - Generate .ftl files from scene files via the [`FluentGenerator`](#ftl-generator) singleton.
+- Optionally strip comments on exported FTL files.
 
 ## Available Versions
 
