@@ -7,6 +7,7 @@ use godot::global::{str_to_var, var_to_str};
 use godot::global::Error as GdErr;
 use unic_langid::{LanguageIdentifier, LanguageIdentifierError};
 
+use crate::hacks::SyncSendCallable;
 use crate::utils::get_single_regex_match;
 
 use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE, PROJECT_SETTING_UNICODE_ISOLATION};
@@ -106,27 +107,50 @@ impl TranslationFluent {
         }
     }
 
-    fn map_fluent_error(result: &Result<(), Vec<FluentError>>) -> GdErr {
-        match result {
-            Ok(_) => GdErr::OK,
-            Err(errs) => {
-                // TODO: Just take first error for now...
-                let err = errs.first();
-                match err {
-                    Some(FluentError::Overriding { kind, id }) => {
-                        godot_warn!("{} with id {} already exists!", kind, id);
-                        GdErr::ERR_ALREADY_EXISTS
-                    }
-                    Some(FluentError::ParserError(_err)) => {
-                        // TODO: figure out string from err instance via "kind" / "thiserror" derive
-                        GdErr::ERR_PARSE_ERROR
-                    }
-                    Some(FluentError::ResolverError(err)) => {
-                        godot_warn!("{}", err);
-                        GdErr::ERR_CANT_RESOLVE
-                    }
-                    None => GdErr::FAILED
+    fn map_fluent_error(error: &FluentError) -> GdErr {
+        match error {
+            FluentError::Overriding { kind, id } => {
+                godot_warn!("{} with id {} already exists!", kind, id);
+                GdErr::ERR_ALREADY_EXISTS
+            }
+            FluentError::ParserError(_err) => {
+                // TODO: figure out string from err instance via "kind" / "thiserror" derive
+                GdErr::ERR_PARSE_ERROR
+            }
+            FluentError::ResolverError(err) => {
+                godot_warn!("{}", err);
+                GdErr::ERR_CANT_RESOLVE
+            }
+        }
+    }
+
+    fn map_fluent_error_list(errors: &Vec<FluentError>) -> GdErr {
+        // TODO: Just take first error for now...
+        let error = errors.first();
+        match error {
+            Some(error) => Self::map_fluent_error(error),
+            None => GdErr::FAILED,
+        }
+    }
+
+    fn fluent_to_variant(input: &FluentValue) -> Variant {
+        match input {
+            FluentValue::String(str) => str.into_godot().to_variant(),
+            FluentValue::Number(num) => {
+                // TODO: unsure what the default value for maximum_fraction_digits is, but likely not zero
+                if let Some(0) = num.options.maximum_fraction_digits {
+                    // int
+                    (num.value as i64).into_godot().to_variant()
+                } else {
+                    // float
+                    num.value.into_godot().to_variant()
                 }
+            },
+            FluentValue::Custom(_custom) => todo!("Custom FluentValue conversion"),
+            FluentValue::None => Variant::nil(),
+            FluentValue::Error => {
+                godot_error!("Tried to convert FluentValue::Error to a Variant.");
+                Variant::nil()
             }
         }
     }
@@ -255,7 +279,10 @@ impl TranslationFluent {
         }
         let res = res.unwrap();
 
-        Self::map_fluent_error(&bundle.add_resource(res))
+        match bundle.add_resource(res) {
+            Ok(_) => GdErr::OK,
+            Err(errors) => Self::map_fluent_error_list(&errors),
+        }
     }
 
     fn create_bundle(&self) -> Result<FluentBundle<FluentResource>, GdErr> {
@@ -293,6 +320,50 @@ impl TranslationFluent {
                 }
                 Ok(locales)
             }
+        }
+    }
+
+    #[func]
+    pub fn add_function(&mut self, name: GString, callable: SyncSendCallable) -> GdErr {
+        let bundle = match &mut self.bundle {
+            Some(bundle) => bundle,
+            None => &mut {
+                let bundle = self.create_bundle();
+                match bundle {
+                    Ok(bundle) => {
+                        self.bundle = Some(bundle);
+                        self.bundle.as_mut().unwrap()
+                    },
+                    Err(err) => return err
+                }
+            },
+        };
+
+        let name = String::from(name);
+        let name_upper = name.to_uppercase();
+        if name != name_upper {
+            godot_warn!("add_function expects uppercase function names. Registered function as {name_upper}");
+        }
+
+        let add_result = bundle.add_function(&name_upper, move |positional, named| {
+            // Convert args to variants
+            let positional_variants = positional.iter()
+                .map(|value| Self::fluent_to_variant(value))
+                .collect::<VariantArray>();
+            let named_variants = named.iter()
+                .map(|(key, value)| (key, Self::fluent_to_variant(value)))
+                .collect::<Dictionary>();
+
+            // Run the function and convert its result.
+            let args = varray![positional_variants, named_variants];
+            let result = callable.callv(args);
+            let result_variant = Self::variant_to_fluent(result);
+            result_variant
+        });
+
+        match add_result {
+            Ok(_) => GdErr::OK,
+            Err(error) => Self::map_fluent_error(&error),
         }
     }
 }

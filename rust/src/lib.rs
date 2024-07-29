@@ -4,7 +4,8 @@ use godot::prelude::*;
 use godot::classes::Engine;
 
 pub mod fluent;
-pub mod utils;
+pub(crate) mod hacks;
+pub(crate) mod utils;
 
 struct FluentI18n;
 

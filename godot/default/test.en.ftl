@@ -7,4 +7,4 @@ HELLO =
         [one] You have one unread { -term }.
        *[other] You have { $unreadEmails } unread { -term }s.
     }
-    .meta = An attr.
+    .meta = An attr. { TESTER(123, "abc", name: "yeah!") }
