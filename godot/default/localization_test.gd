@@ -3,10 +3,6 @@ extends Control
 # Create translations for both English and German languages.
 func _init():
 	var tr_filename = load("res://test.en.ftl")
-	tr_filename.add_function("tester", func(positional, named):
-		printt(positional, named)
-		return 123
-	)
 	var tr_foldername = load("res://de/german-test.ftl")
 	var tr_inline = TranslationFluent.new()
 	tr_inline.locale = "pt_PT"
