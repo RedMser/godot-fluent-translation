@@ -95,6 +95,14 @@ HELLO =
     .meta = An attr.
 """.replace("\t", "    "))
 
+    # Define custom functions to use in messages.
+    # positional is an array, named is a dictionary.
+    tr_filename.add_function("STRLEN", func(positional, named):
+        if positional.is_empty():
+            return 0
+        return len(str(positional[0]))
+    )
+
     # Register via TranslationServer.
     TranslationServer.add_translation(tr_filename)
     TranslationServer.add_translation(tr_foldername)
