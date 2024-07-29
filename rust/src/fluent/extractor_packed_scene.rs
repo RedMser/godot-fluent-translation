@@ -1,8 +1,8 @@
 use std::collections::{HashMap, HashSet};
 
-use godot::engine::node::AutoTranslateMode;
-use godot::engine::{ClassDb, RegEx};
-use godot::engine::{resource_loader::CacheMode, ResourceLoader};
+use godot::classes::{ClassDb, RegEx, ResourceLoader};
+use godot::classes::node::AutoTranslateMode;
+use godot::classes::resource_loader::CacheMode;
 use godot::prelude::*;
 
 use super::{FluentTranslationParser, MessageGeneration};

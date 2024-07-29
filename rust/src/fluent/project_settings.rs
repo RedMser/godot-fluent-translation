@@ -1,6 +1,6 @@
-use godot::engine::global::PropertyHint;
+use godot::global::PropertyHint;
 use godot::prelude::*;
-use godot::engine::ProjectSettings;
+use godot::classes::ProjectSettings;
 use constcat::concat as constcat;
 
 const PROJECT_SETTING_PREFIX: &str = "internationalization/fluent/";

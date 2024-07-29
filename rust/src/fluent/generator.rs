@@ -1,11 +1,13 @@
-use godot::{engine::{utilities::error_string, ProjectSettings, RegEx, RegExMatch}, prelude::*};
+use godot::prelude::*;
+use godot::classes::{ProjectSettings, RegEx, RegExMatch};
+use godot::global::error_string;
 use itertools::Itertools;
 use std::{collections::HashMap, path::PathBuf};
 use fluent_syntax::{ast, parser::parse};
 use fluent_syntax::serializer::serialize;
 
 use crate::utils::{create_or_open_file_for_read_write, get_files_recursive};
-use godot::engine::global::Error as GdErr;
+use godot::global::Error as GdErr;
 
 use super::{project_settings::{INVALID_MESSAGE_HANDLING_SKIP, PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING, PROJECT_SETTING_GENERATOR_LOCALES, PROJECT_SETTING_GENERATOR_PATTERNS}, FluentPackedSceneTranslationParser, FluentTranslationParser};
 

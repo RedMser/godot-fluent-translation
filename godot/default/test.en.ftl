@@ -1,4 +1,7 @@
+# this is a comment
+## another comment
 -term = email
+### third kind of comment
 HELLO =
     { $unreadEmails ->
         [one] You have one unread { -term }.
