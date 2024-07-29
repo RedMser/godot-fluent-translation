@@ -1,5 +1,7 @@
 # Godot 4+ specific ignores
 .godot/
+**/bin/**
+!**/bin/.gdignore
 
 # Temporary directories
 node_modules/

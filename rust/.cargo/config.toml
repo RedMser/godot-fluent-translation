@@ -1,2 +1,2 @@
 [env]
-GODOT4_BIN = { value = "../build/godot.windows.editor.x86_64.console.exe", relative = true }
+GODOT4_BIN = { value = "../build/godot.windows.editor.x86_64.exe", relative = true }
