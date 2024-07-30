@@ -6,6 +6,9 @@ use godot::global::Error as GdErr;
 
 use super::{locale::{compute_locale, compute_message_pattern}, project_settings::*, TranslationFluent};
 
+/// Loads Fluent Translation List (FTL) files.
+/// 
+/// This loader is already registered and does usually not need to be manually used. Use [method @GDScript.load] on a `.ftl` file instead.
 #[derive(GodotClass)]
 #[class(base=ResourceFormatLoader)]
 pub struct ResourceFormatLoaderFluent {
