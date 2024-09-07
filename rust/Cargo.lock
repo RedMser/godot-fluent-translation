@@ -26,7 +26,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "regex",
- "rustc-hash",
+ "rustc-hash 1.1.0",
  "shlex",
  "syn",
 ]
@@ -99,7 +99,7 @@ dependencies = [
 [[package]]
 name = "fluent"
 version = "0.16.1"
-source = "git+https://github.com/projectfluent/fluent-rs?branch=main#2e7c25e592e53000e7b4fb5554eec83a1a0286c0"
+source = "git+https://github.com/projectfluent/fluent-rs?branch=main#d7f0d48cb22d5a66934c492d29a96f694c438c7f"
 dependencies = [
  "fluent-bundle",
  "unic-langid",
@@ -108,13 +108,13 @@ dependencies = [
 [[package]]
 name = "fluent-bundle"
 version = "0.15.3"
-source = "git+https://github.com/projectfluent/fluent-rs?branch=main#2e7c25e592e53000e7b4fb5554eec83a1a0286c0"
+source = "git+https://github.com/projectfluent/fluent-rs?branch=main#d7f0d48cb22d5a66934c492d29a96f694c438c7f"
 dependencies = [
  "fluent-langneg",
  "fluent-syntax",
  "intl-memoizer",
  "intl_pluralrules",
- "rustc-hash",
+ "rustc-hash 2.0.0",
  "self_cell",
  "smallvec",
  "unic-langid",
@@ -132,7 +132,7 @@ dependencies = [
 [[package]]
 name = "fluent-syntax"
 version = "0.11.1"
-source = "git+https://github.com/projectfluent/fluent-rs?branch=main#2e7c25e592e53000e7b4fb5554eec83a1a0286c0"
+source = "git+https://github.com/projectfluent/fluent-rs?branch=main#d7f0d48cb22d5a66934c492d29a96f694c438c7f"
 dependencies = [
  "memchr",
  "thiserror",
@@ -140,8 +140,8 @@ dependencies = [
 
 [[package]]
 name = "gdextension-api"
-version = "0.1.0"
-source = "git+https://github.com/godot-rust/godot4-prebuilt?branch=releases#e3c0d8d397a593aa23da4a19b535c959754f3604"
+version = "0.2.0"
+source = "git+https://github.com/godot-rust/godot4-prebuilt?branch=releases#6d902e8a6060007f4ab94cd78882247ae2558d96"
 
 [[package]]
 name = "gensym"
@@ -168,9 +168,9 @@ dependencies = [
 
 [[package]]
 name = "glam"
-version = "0.27.0"
+version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9e05e7e6723e3455f4818c7b26e855439f7546cf617ef669d1adedb8669e5cb9"
+checksum = "779ae4bf7e8421cf91c0b3b64e7e8b40b862fba4d393f59150042de7c4965a94"
 
 [[package]]
 name = "glob"
@@ -181,7 +181,7 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 [[package]]
 name = "godot"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 dependencies = [
  "godot-core",
  "godot-macros",
@@ -190,7 +190,7 @@ dependencies = [
 [[package]]
 name = "godot-bindings"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 dependencies = [
  "bindgen",
  "gdextension-api",
@@ -201,12 +201,12 @@ dependencies = [
 [[package]]
 name = "godot-cell"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 
 [[package]]
 name = "godot-codegen"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 dependencies = [
  "godot-bindings",
  "heck",
@@ -219,7 +219,7 @@ dependencies = [
 [[package]]
 name = "godot-core"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 dependencies = [
  "glam",
  "godot-bindings",
@@ -231,7 +231,7 @@ dependencies = [
 [[package]]
 name = "godot-ffi"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 dependencies = [
  "gensym",
  "godot-bindings",
@@ -255,7 +255,7 @@ dependencies = [
 [[package]]
 name = "godot-macros"
 version = "0.1.3"
-source = "git+https://github.com/godot-rust/gdext?branch=master#71b869fa7b5a16a0aeb5b67200b6b7995854676c"
+source = "git+https://github.com/godot-rust/gdext?branch=master#acae2b0faa110ca9be36bc77789b37481c5b4bdc"
 dependencies = [
  "godot-bindings",
  "markdown",
@@ -266,9 +266,9 @@ dependencies = [
 
 [[package]]
 name = "heck"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "95505c38b4572b2d910cecb0281560f54b440a19336cbbcb27bf6ce6adc6f5a8"
+checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "home"
@@ -282,7 +282,7 @@ dependencies = [
 [[package]]
 name = "intl-memoizer"
 version = "0.5.2"
-source = "git+https://github.com/projectfluent/fluent-rs?branch=main#2e7c25e592e53000e7b4fb5554eec83a1a0286c0"
+source = "git+https://github.com/projectfluent/fluent-rs?branch=main#d7f0d48cb22d5a66934c492d29a96f694c438c7f"
 dependencies = [
  "type-map",
  "unic-langid",
@@ -320,15 +320,15 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "libc"
-version = "0.2.155"
+version = "0.2.158"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97b3888a4aecf77e811145cadf6eef5901f4782c53886191b2f693f24761847c"
+checksum = "d8adc4bb1803a324070e64a98ae98f38934d91957a99cfb3a43dcbc01bc56439"
 
 [[package]]
 name = "libloading"
-version = "0.8.4"
+version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e310b3a6b5907f99202fcdb4960ff45b93735d7c7d96b760fcff8db2dc0e103d"
+checksum = "4979f22fdb869068da03c9f7528f8297c6fd2606bc3a4affe42e6a823fdb8da4"
 dependencies = [
  "cfg-if",
  "windows-targets",
@@ -342,9 +342,9 @@ checksum = "78b3ae25bc7c8c38cec158d1f2757ee79e9b3740fbc7ccf0e59e4b08d793fa89"
 
 [[package]]
 name = "markdown"
-version = "1.0.0-alpha.18"
+version = "1.0.0-alpha.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e61c5c85b392273c4d4ea546e6399ace3e3db172ab01b6de8f3d398d1dbd2ec"
+checksum = "911a8325e6fb87b89890cd4529a2ab34c2669c026279e61c26b7140a3d821ccb"
 dependencies = [
  "unicode-id",
 ]
@@ -409,18 +409,18 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.36"
+version = "1.0.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0fa76aaf39101c457836aec0ce2316dbdc3ab723cdda1c6bd4e6ad4208acaca7"
+checksum = "b5b9d34b8991d19d98081b46eacdd8eb58c6f2b201139f7c5f643cc155a633af"
 dependencies = [
  "proc-macro2",
 ]
 
 [[package]]
 name = "regex"
-version = "1.10.5"
+version = "1.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b91213439dad192326a0d7c6ee3955910425f441d7038e0d6933b0aec5c4517f"
+checksum = "4219d74c6b67a3654a9fbebc4b419e22126d13d2f3c4a07ee0cb61ff79a79619"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -452,10 +452,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08d43f7aa6b08d49f382cde6a7982047c3426db949b1424bc4b7ec9ae12c6ce2"
 
 [[package]]
-name = "rustix"
-version = "0.38.34"
+name = "rustc-hash"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "70dc5ec042f7a43c4a73241207cecc9873a06d45debb38b329f8541d85c2730f"
+checksum = "583034fd73374156e66797ed8e5b0d5690409c9226b22d87cb7f19821c05d152"
+
+[[package]]
+name = "rustix"
+version = "0.38.36"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f55e80d50763938498dd5ebb18647174e0c76dc38c5505294bb224624f30f36"
 dependencies = [
  "bitflags",
  "errno",
@@ -484,9 +490,9 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 
 [[package]]
 name = "syn"
-version = "2.0.70"
+version = "2.0.77"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f0209b68b3613b093e0ec905354eccaedcfe83b8cb37cbdeae64026c3064c16"
+checksum = "9f35bcdf61fd8e7be6caf75f429fdca8beb3ed76584befb503b1569faee373ed"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -495,18 +501,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.61"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c546c80d6be4bc6a00c0f01730c08df82eaa7a7a61f11d656526506112cc1709"
+checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.61"
+version = "1.0.63"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46c3384250002a6d5af4d114f2845d37b57521033f30d5c3f46c4d70e1197533"
+checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -528,7 +534,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "deb68604048ff8fa93347f02441e4487594adc20bb8a084f9e564d2b827a0a9f"
 dependencies = [
- "rustc-hash",
+ "rustc-hash 1.1.0",
 ]
 
 [[package]]
@@ -588,9 +594,9 @@ checksum = "9c8d87e72b64a3b4db28d11ce29237c246188f4f51057d65a7eab63b7987e423"
 
 [[package]]
 name = "which"
-version = "6.0.1"
+version = "6.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8211e4f58a2b2805adfbefbc07bab82958fc91e3836339b1ab7ae32465dce0d7"
+checksum = "b4ee928febd44d98f2f459a4a79bd4d928591333a494a10a868418ac1b39cf1f"
 dependencies = [
  "either",
  "home",

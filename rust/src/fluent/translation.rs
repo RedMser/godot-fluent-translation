@@ -12,9 +12,21 @@ use crate::utils::get_single_regex_match;
 
 use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE, PROJECT_SETTING_UNICODE_ISOLATION};
 
+/// Translation resource containing one or more Fluent Translation Lists (FTLs).
+/// 
+/// Can be loaded from a `.ftl` file via [method @GDScript.load] or manually populated using [method add_bundle_from_text].
+/// When using the forked build of the add-on, you can also add a `.ftl` file to the Project Settings in the Localization -> Translations tab.
+/// 
+/// Any time a [TranslationFluent] instance is created by the add-on, the [member message_pattern] and [member locale] are automatically filled
+/// depending on the corresponding Project Settings.
 #[derive(GodotClass)]
 #[class(base=Translation)]
 pub struct TranslationFluent {
+    /// Automatically wrap every message with the specified regex pattern, defined as a string pattern.
+    /// This can be specified in order to create custom namespaces for your translations.
+    /// 
+    /// For example, if a message `hello = abc` is defined with the pattern `^test_(.+)$`, then you must call `tr("test_hello")` to get the message's translation.
+    /// **Note**: The regex pattern is case sensitive by default. Prefix your pattern with `(?i)` in order to make it case insensitive.
     #[var(get = get_message_pattern, set = set_message_pattern)]
     message_pattern: GString,
     message_pattern_regex: Option<Gd<RegEx>>,
@@ -223,6 +235,10 @@ impl TranslationFluent {
         Some(text.into_owned())
     }
 
+    /// Attach arguments (also known as variables) to a message.
+    /// A translation can use these values using `{ $variableName }` syntax in the FTL.
+    /// 
+    /// This method is only needed when using the default version of the add-on, as the forked build includes an additional `args` parameter to the different translation methods.
     #[func]
     pub fn args(msg: StringName, args: Dictionary) -> StringName {
         let args = var_to_str(Variant::from(args)).to_string();
@@ -256,6 +272,13 @@ impl TranslationFluent {
         (msg, Default::default())
     }
 
+    /// Add a Fluent Translation List (FTL) text to this translation.
+    /// This method is automatically called when the add-on creates a [TranslationFluent] resource for you (e.g. when using [method @GDScript.load]).
+    /// 
+    /// Returns an [enum Error] value whether the data was successfully added.
+    /// 
+    /// **Note**: When this method is called, certain Project Settings values are read.
+    /// Changing these Project Settings after this call will not update already existing [TranslationFluent] resources.
     #[func]
     pub fn append_from_text(&mut self, text: String) -> GdErr {
         let bundle = match &mut self.bundle {
@@ -323,6 +346,10 @@ impl TranslationFluent {
         }
     }
 
+    /// Defines a custom function that can be called in a placeable.
+    /// 
+    /// [param name] must be an all-uppercase string.
+    /// [param callable] takes two parameters `positional: Array[String|int|float]` and `named: Dictionary[String, String|int|float]` and must return `String|int|float|null`.
     #[func]
     pub fn add_function(&mut self, name: GString, callable: SyncSendCallable) -> GdErr {
         let bundle = match &mut self.bundle {

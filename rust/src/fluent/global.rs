@@ -3,6 +3,7 @@ use godot::classes::ResourceLoader;
 
 use super::ResourceFormatLoaderFluent;
 
+/// Singleton for handling Fluent Translation. For internal use only.
 #[derive(GodotClass)]
 #[class(base=Object, init)]
 pub struct FluentI18nSingleton {
