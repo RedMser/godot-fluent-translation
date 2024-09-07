@@ -24,7 +24,7 @@ This extension can be downloaded in two different versions, each with their own 
 
 ### Default
 
-- Works with official releases of [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
+- Works with official releases of [Godot v4.3](https://github.com/godotengine/godot/releases/tag/4.3-stable) or newer.
 - Available on the [Asset Library](https://godotengine.org/asset-library/asset/2937).
 - Has some limitations
     - Translations that use variables are written like `tr(TranslationFluent.args("message", { ... }))`
@@ -60,7 +60,7 @@ This is why you have the choice between a version that has better engine support
     - The **Default** version is also available on the [Asset Library](https://godotengine.org/asset-library/asset/2937).
 - Extract the zip file contents to your project folder, so that the project root contains an `addons` folder.
 - Download a compatible version of Godot.
-    - **Default**: [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
+    - **Default**: [Godot v4.3](https://github.com/godotengine/godot/releases/tag/4.3-stable) or newer.
     - **Forked**: [Download forked builds here.](https://github.com/RedMser/godot/releases)
 - Start Godot editor. If it was already running, restart it to fix autocompletion.
 - Follow the sample code to see if installation was successful. Remove any code which contains errors, as some of it only works depending on the version you've installed.

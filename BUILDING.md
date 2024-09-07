@@ -29,7 +29,7 @@ As explained in the [Available Versions](./README.md#forked) section of the read
 
 ## Version Compatibility
 
-You must use [Godot v4.3 dev 6](https://godotengine.org/article/dev-snapshot-godot-4-3-dev-6/) or newer.
+You must use [Godot v4.3](https://github.com/godotengine/godot/releases/tag/4.3-stable) or newer.
 
 The GDExtension uses following APIs only available in this version:
 
