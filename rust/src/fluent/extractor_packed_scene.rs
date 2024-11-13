@@ -16,14 +16,14 @@ pub struct FluentPackedSceneTranslationParser {
 /// Main difference is that it does not (yet) call parsers recursively.
 impl FluentTranslationParser for FluentPackedSceneTranslationParser {
     fn get_recognized_extensions(&self) -> Vec<GString> {
-        ResourceLoader::singleton().get_recognized_extensions_for_type("PackedScene".into()).to_vec()
+        ResourceLoader::singleton().get_recognized_extensions_for_type("PackedScene").to_vec()
     }
 
     fn extract_messages(&self, path: &GString) -> MessageGeneration {
         let class_db = ClassDb::singleton();
 
-        let loaded_res = ResourceLoader::singleton().load_ex(path.clone())
-            .type_hint("PackedScene".into())
+        let loaded_res = ResourceLoader::singleton().load_ex(path)
+            .type_hint("PackedScene")
             .cache_mode(CacheMode::REUSE)
             .done();
         if loaded_res.is_none() {
@@ -92,7 +92,7 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
                     tabcontainer_paths.pop();
                 }
 
-                if auto_translating && !tabcontainer_paths.is_empty() && class_db.is_parent_class(node_type.clone(), "Control".into())
+                if auto_translating && !tabcontainer_paths.is_empty() && class_db.is_parent_class(&node_type, "Control")
                     && GString::from(parent_path) == tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize] {
                     parsed_strings.push(GString::from(state.get_node_name(i)));
                 }
@@ -162,7 +162,7 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
 impl FluentPackedSceneTranslationParser {
     pub fn init() -> Self {
         let lookup_properties = ["^text$", "^.+_text$", "^popup/.+/text$", "^title$", "^filters$", /* "^script$", */]
-            .map(|str| RegEx::create_from_string(str.into()).unwrap())
+            .map(|str| RegEx::create_from_string(str).unwrap())
             .into();
         let exception_list = [
             ("LineEdit", ["^text$"]),
@@ -170,7 +170,7 @@ impl FluentPackedSceneTranslationParser {
             ("CodeEdit", ["^text$"]),
         ].map(|(typename, strs)|
             (StringName::from(typename), HashSet::from(
-                strs.map(|str| RegEx::create_from_string(str.into()).unwrap())
+                strs.map(|str| RegEx::create_from_string(str).unwrap())
             ))
         )
         .into();
@@ -185,20 +185,20 @@ impl FluentPackedSceneTranslationParser {
         let class_db = ClassDb::singleton();
 
         for (exception_node_type, exception_properties) in &self.exception_list {
-            if class_db.is_parent_class(node_type.clone(), exception_node_type.clone()) &&
+            if class_db.is_parent_class(node_type, exception_node_type) &&
                 exception_properties.iter().any(|exception_property|
-                    Self::matches(GString::from(property_name), exception_property.clone())
+                    Self::matches(&GString::from(property_name), exception_property.clone())
             ) {
                 return false;
             }
         }
 
         self.lookup_properties.iter().any(|lookup_property|
-            Self::matches(GString::from(property_name), lookup_property.clone())
+            Self::matches(&GString::from(property_name), lookup_property.clone())
         )
     }
 
-    fn matches(string: GString, pattern: Gd<RegEx>) -> bool {
+    fn matches(string: &GString, pattern: Gd<RegEx>) -> bool {
         pattern.search(string).is_some()
     }
 }

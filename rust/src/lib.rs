@@ -29,7 +29,7 @@ unsafe impl ExtensionLibrary for FluentI18n {
             singleton.bind().register();
 
             Engine::singleton()
-                .register_singleton(FluentI18nSingleton::SINGLETON_NAME.into(), singleton);
+                .register_singleton(FluentI18nSingleton::SINGLETON_NAME, &singleton);
         }
     }
 
@@ -38,10 +38,10 @@ unsafe impl ExtensionLibrary for FluentI18n {
             let mut engine = Engine::singleton();
 
             let singleton = engine
-                .get_singleton(FluentI18nSingleton::SINGLETON_NAME.into())
+                .get_singleton(FluentI18nSingleton::SINGLETON_NAME)
                 .unwrap();
 
-            engine.unregister_singleton(FluentI18nSingleton::SINGLETON_NAME.into());
+            engine.unregister_singleton(FluentI18nSingleton::SINGLETON_NAME);
 
             singleton
                 .clone()

@@ -14,10 +14,10 @@ impl FluentI18nSingleton {
     pub(crate) const SINGLETON_NAME: &'static str = "FluentI18nSingleton";
 
     pub(crate) fn register(&self) {
-        ResourceLoader::singleton().add_resource_format_loader(self.loader.clone());
+        ResourceLoader::singleton().add_resource_format_loader(&self.loader);
     }
 
     pub(crate) fn unregister(&self) {
-        ResourceLoader::singleton().remove_resource_format_loader(self.loader.clone());
+        ResourceLoader::singleton().remove_resource_format_loader(&self.loader);
     }
 }

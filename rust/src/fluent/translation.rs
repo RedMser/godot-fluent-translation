@@ -41,7 +41,7 @@ impl ITranslation for TranslationFluent {
         std::mem::forget(base.to_gd());
 
         // Default to an empty locale, so that it must be explicitly specified when loading a FTL file.
-        base.to_gd().set_locale(GString::new());
+        base.to_gd().set_locale(&GString::new());
 
         Self {
             message_pattern: GString::new(),
@@ -79,7 +79,7 @@ impl TranslationFluent {
         self.message_pattern_regex = if value.is_empty() {
             None
         } else {
-            RegEx::create_from_string(value)
+            RegEx::create_from_string(&value)
         };
     }
 
@@ -92,7 +92,7 @@ impl TranslationFluent {
 
         if let Some(regex) = &self.message_pattern_regex {
             // Get actual message and see if it matches.
-            if let Some(regex_match) = regex.search(msg.into()) {
+            if let Some(regex_match) = regex.search(msg.arg()) {
                 msg = get_single_regex_match(regex_match, "message_pattern").into();
             } else {
                 // Did not match, can not translate.
@@ -147,15 +147,15 @@ impl TranslationFluent {
 
     fn fluent_to_variant(input: &FluentValue) -> Variant {
         match input {
-            FluentValue::String(str) => str.into_godot().to_variant(),
+            FluentValue::String(str) => str.clone().into_owned().to_godot().to_variant(),
             FluentValue::Number(num) => {
                 // TODO: unsure what the default value for maximum_fraction_digits is, but likely not zero
                 if let Some(0) = num.options.maximum_fraction_digits {
                     // int
-                    (num.value as i64).into_godot().to_variant()
+                    (num.value as i64).to_godot().to_variant()
                 } else {
                     // float
-                    num.value.into_godot().to_variant()
+                    num.value.to_godot().to_variant()
                 }
             },
             FluentValue::Custom(_custom) => todo!("Custom FluentValue conversion"),
@@ -241,7 +241,7 @@ impl TranslationFluent {
     /// This method is only needed when using the default version of the add-on, as the forked build includes an additional `args` parameter to the different translation methods.
     #[func]
     pub fn args(msg: StringName, args: Dictionary) -> StringName {
-        let args = var_to_str(Variant::from(args)).to_string();
+        let args = var_to_str(&Variant::from(args)).to_string();
         let msg = msg.to_string() + &args;
         msg.into()
     }
@@ -249,7 +249,7 @@ impl TranslationFluent {
     fn extract_args(msg: StringName) -> (StringName, Dictionary) {
         let parse_args_in_message = {
             let project_settings = ProjectSettings::singleton();
-            bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE.into()))
+            bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE))
         };
         if parse_args_in_message {
             // Try parsing trailing dict as args.
@@ -258,7 +258,7 @@ impl TranslationFluent {
                 let open_brace = msg_str.rfind('{');
                 if let Some(open_brace) = open_brace {
                     let args = &msg_str[open_brace..];
-                    let args = str_to_var(args.into());
+                    let args = str_to_var(args);
                     if args.get_type() != VariantType::DICTIONARY {
                         return (msg, Default::default());
                     }
@@ -311,7 +311,7 @@ impl TranslationFluent {
     fn create_bundle(&self) -> Result<FluentBundle<FluentResource>, GdErr> {
         let mut bundle = FluentBundle::new(self.get_fluent_locales()?);
         let project_settings = ProjectSettings::singleton();
-        bundle.set_use_isolating(bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION.into())));
+        bundle.set_use_isolating(bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION)));
         Ok(bundle)
     }
 
@@ -331,7 +331,7 @@ impl TranslationFluent {
                 let project_settings = ProjectSettings::singleton();
                 let mut locales = vec![lang_id];
                 // Use TranslationServer fallback if it exists (same check as TS::translate).
-                let fallback_locale = project_settings.get_setting(PROJECT_SETTING_FALLBACK_LOCALE.into()).stringify();
+                let fallback_locale = project_settings.get_setting(PROJECT_SETTING_FALLBACK_LOCALE).stringify();
                 if fallback_locale.len() >= 2 {
                     let fallback_locale_id = fallback_locale.to_string().parse::<LanguageIdentifier>();
                     match fallback_locale_id {
@@ -383,7 +383,7 @@ impl TranslationFluent {
 
             // Run the function and convert its result.
             let args = varray![positional_variants, named_variants];
-            let result = callable.callv(args);
+            let result = callable.callv(&args);
             let result_variant = Self::variant_to_fluent(result);
             result_variant
         });

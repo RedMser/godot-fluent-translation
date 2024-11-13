@@ -15,12 +15,13 @@ impl IEditorPlugin for FluentEditorPlugin {
     fn enter_tree(&mut self) {
         let export_plugin = FluentExportPlugin::new_gd();
         self.export_plugin = Some(export_plugin.clone());
-        self.base_mut().add_export_plugin(export_plugin);
+        self.base_mut().add_export_plugin(&export_plugin);
     }
 
     fn exit_tree(&mut self) {
-        let export_plugin = self.export_plugin.take();
-        self.base_mut().remove_export_plugin(export_plugin);
-        self.export_plugin = None;
+        if let Some(export_plugin) = self.export_plugin.take() {
+            self.base_mut().remove_export_plugin(&export_plugin);
+            self.export_plugin = None;
+        }
     }
 }
