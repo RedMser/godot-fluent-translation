@@ -40,8 +40,8 @@ fn register_setting(name: String, value: Variant) {
 fn register_setting_hint(name: String, value: Variant, hint: PropertyHint, hint_string: String) {
     let mut project_settings = ProjectSettings::singleton();
     
-    if !project_settings.has_setting(name.clone().into()) {
-        project_settings.set_setting(name.clone().into(), value.clone());
+    if !project_settings.has_setting(&name) {
+        project_settings.set_setting(&name, &value);
     }
 
     let mut property_info = Dictionary::new();
@@ -50,6 +50,6 @@ fn register_setting_hint(name: String, value: Variant, hint: PropertyHint, hint_
     property_info.set("hint", hint);
     property_info.set("hint_string", GString::from(hint_string));
 
-    project_settings.add_property_info(property_info);
-    project_settings.set_initial_value(GString::from(name), value);
+    project_settings.add_property_info(&property_info);
+    project_settings.set_initial_value(&name, &value);
 }

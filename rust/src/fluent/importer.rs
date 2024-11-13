@@ -24,7 +24,7 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
     }
 
     fn get_recognized_extensions(&self) -> PackedStringArray {
-        PackedStringArray::from(&["ftl".into_godot()])
+        PackedStringArray::from(&["ftl".to_godot()])
     }
 
     fn handles_type(&self, type_name: StringName) -> bool {
@@ -47,25 +47,25 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
             return GdErr::ERR_INVALID_PARAMETER.ord().to_variant();
         }
 
-        let text = FileAccess::get_file_as_string(path);
+        let text = FileAccess::get_file_as_string(&path);
         let err = FileAccess::get_open_error();
         if err != GdErr::OK {
             return err.ord().to_variant();
         }
 
         let mut translation = TranslationFluent::new_gd();
-        translation.bind_mut().base_mut().set_locale(locale.unwrap().into());
+        translation.bind_mut().base_mut().set_locale(&locale.unwrap());
 
         let pattern_match = compute_message_pattern(&path_buf);
         if let Some(pattern_match) = pattern_match {
-            let mut pattern_target = String::from_godot(ProjectSettings::singleton().get_setting(PROJECT_SETTING_LOADER_MESSAGE_PATTERN.into()).stringify());
+            let mut pattern_target = String::from_godot(ProjectSettings::singleton().get_setting(PROJECT_SETTING_LOADER_MESSAGE_PATTERN).stringify());
             for group_index in 0..=pattern_match.get_group_count() {
-                let group_value = pattern_match.get_string_ex().name(group_index.to_variant()).done();
+                let group_value = pattern_match.get_string_ex().name(&group_index.to_variant()).done();
                 pattern_target = pattern_target.replace(&format!("{{${}}}", group_index), &group_value.to_string());
             }
 
             let pattern_target = GString::from(pattern_target);
-            let pattern_regex = RegEx::create_from_string(pattern_target.clone()).unwrap();
+            let pattern_regex = RegEx::create_from_string(&pattern_target).unwrap();
             if pattern_regex.get_group_count() != 1 {
                 godot_warn!(
                     "Expected {} to have exactly one capture group, but got {} instead.\nIgnoring message pattern!", 

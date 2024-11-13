@@ -34,19 +34,19 @@ impl FluentGenerator {
     #[func]
     pub fn create() -> Gd<Self> {
         let project_settings = ProjectSettings::singleton();
-        let locales = PackedStringArray::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_LOCALES.into()));
+        let locales = PackedStringArray::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_LOCALES));
         let locales = locales.as_slice().iter().map(|s| s.to_string()).collect();
-        let file_patterns = Dictionary::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_PATTERNS.into()));
+        let file_patterns = Dictionary::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_PATTERNS));
         let file_patterns = file_patterns.iter_shared().map(|(k, v)| {
             let k = GString::from_variant(&k);
-            let k = RegEx::create_from_string(k).unwrap();
+            let k = RegEx::create_from_string(&k).unwrap();
             let v = GString::from_variant(&v).to_string();
             (k, v)
         }).collect();
         Gd::from_object(Self {
             locales,
             file_patterns,
-            invalid_message_handling: i32::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING.into())),
+            invalid_message_handling: i32::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING)),
             extractor: FluentPackedSceneTranslationParser::init(),
         })
     }
@@ -100,7 +100,7 @@ impl FluentGenerator {
             .filter_map(|str| {
                 // Check all patterns until the first matches (returns Some(RegExMatch)).
                 self.file_patterns.iter().find_map(|(regex, pattern)| {
-                    let regex_match = regex.search(str.clone());
+                    let regex_match = regex.search(&str);
                     if regex_match.is_none() {
                         return None;
                     }
@@ -124,7 +124,7 @@ impl FluentGenerator {
             .map(|locale| {
                 let mut pattern = pattern.replace("{$locale}", locale);
                 for group_index in 0..=source_match.get_group_count() {
-                    let group_value = source_match.get_string_ex().name(group_index.to_variant()).done();
+                    let group_value = source_match.get_string_ex().name(&group_index.to_variant()).done();
                     pattern = pattern.replace(&format!("{{${}}}", group_index), &group_value.to_string());
                 }
                 pattern
@@ -135,7 +135,7 @@ impl FluentGenerator {
 
     fn create_or_update_ftl(path: String, messages: MessageGeneration) {
         // Load existing or create new FTL file.
-        let fa = create_or_open_file_for_read_write(path.clone().into());
+        let fa = create_or_open_file_for_read_write(&path.clone().into());
         if fa.is_err() {
             godot_error!("Unable to open file {} for writing: {}", path, error_string(fa.err().unwrap().ord() as i64));
             return;
@@ -214,7 +214,7 @@ impl FluentGenerator {
             godot_error!("Failed to resize file {}", path);
             return;
         }
-        fa.store_string(ftl.into());
+        fa.store_string(&ftl);
     }
 
     fn make_safe_identifier(name: String) -> String {

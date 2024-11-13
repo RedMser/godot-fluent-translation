@@ -42,4 +42,8 @@ impl ToGodot for SyncSendCallable {
     fn to_godot(&self) -> Self::Via {
         self.0.to_godot()
     }
+    
+    type ToVia<'v> = Callable
+    where
+        Self: 'v;
 }

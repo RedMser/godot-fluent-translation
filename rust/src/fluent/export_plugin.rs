@@ -22,7 +22,7 @@ impl IEditorExportPlugin for FluentExportPlugin {
     }
 
     fn get_export_options(&self, _platform: Option<Gd<EditorExportPlatform>>) -> Array<Dictionary> {
-        array![dict! {
+        array![&dict! {
             "option": dict! {
                 "name": GString::from(EXPORT_OPTION_STRIP_COMMENTS),
                 "type": VariantType::BOOL,
@@ -36,13 +36,13 @@ impl IEditorExportPlugin for FluentExportPlugin {
             return;
         }
 
-        if self.base().get_option(StringName::from(EXPORT_OPTION_STRIP_COMMENTS)).booleanize() {
+        if self.base().get_option(EXPORT_OPTION_STRIP_COMMENTS).booleanize() {
             // Strip comments from file
-            let contents = strip_comments(path.clone());
+            let contents = strip_comments(&path);
             let binary = PackedByteArray::from_iter(contents.bytes());
 
             self.base_mut().skip();
-            self.base_mut().add_file(path, binary, false);
+            self.base_mut().add_file(&path, &binary, false);
         }
     }
 
