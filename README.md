@@ -26,7 +26,8 @@ This extension can be downloaded in two different versions, each with their own 
 
 - Works with official releases of [Godot v4.3](https://github.com/godotengine/godot/releases/tag/4.3-stable) or newer.
 - Available on the [Asset Library](https://godotengine.org/asset-library/asset/2937).
-- Has some limitations
+- Small file size.
+- Has some limitations:
     - Translations that use variables are written like `tr(TranslationFluent.args("message", { ... }))`
         - Requires [`internationalization/fluent/parse_args_in_message`](#project-settings) to be enabled.
     - Translation files must be loaded via code, not via Project Settings.
@@ -34,7 +35,8 @@ This extension can be downloaded in two different versions, each with their own 
 ### Forked
 
 - Requires a special custom ("forked") version of Godot, included as a separate download (see installation instructions). It might not be updated very frequently.
-- Better engine integration
+- Large file size, due to [limitations](https://github.com/godot-rust/gdext/issues/597) with godot-rust.
+- Better engine integration:
     - Translations that use variables can be written like `tr("message", { ... })`
     - Translation files can be loaded via code or via Project Settings.
 
@@ -49,7 +51,7 @@ This extension can be downloaded in two different versions, each with their own 
 Due to Godot's translation system being very inflexible, it is not possible for an extension to modify certain parts about it.
 While I'd love for all features to work with the official version of Godot, it is unlikely for [all of my changes](https://github.com/RedMser/godot-fluent-translation/issues/11) to be included in any upcoming version.
 
-This is why you have the choice between a version that has better engine support, or one that "just works".
+This is why you have the choice between a version that has better engine support, or one that "does what it should, however possible".
 
 </details>
 
