@@ -18,6 +18,6 @@ crate-type = ["cdylib"]  # Compile this crate to a dynamic C library.
 constcat = "0.5.0"
 fluent = { git = "https://github.com/projectfluent/fluent-rs", branch = "main" }
 fluent-syntax = { git = "https://github.com/projectfluent/fluent-rs", branch = "main" }
-godot = { git = "https://github.com/godot-rust/gdext", branch = "master", features = ["register-docs", "experimental-threads"] }
+godot = { git = "https://github.com/godot-rust/gdext", branch = "master", features = ["register-docs", "lazy-function-tables"] }
 itertools = "0.13.0"
 unic-langid = "0.9.4"
