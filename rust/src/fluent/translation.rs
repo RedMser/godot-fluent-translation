@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use fluent::types::{FluentNumber, FluentNumberOptions};
+use fluent::types::FluentNumber;
 use fluent::{FluentArgs, FluentBundle, FluentError, FluentResource, FluentValue};
 use godot::prelude::*;
 use godot::classes::{ITranslation, ProjectSettings, RegEx, Translation};
@@ -176,9 +176,7 @@ impl TranslationFluent {
             },
             VariantType::INT => {
                 let casted: i64 = input.to();
-                let mut options = FluentNumberOptions::default();
-                options.maximum_fraction_digits = Some(0);
-                FluentValue::Number(FluentNumber::new(casted as f64, options))
+                FluentValue::Number(FluentNumber::new(casted as f64, Default::default()))
             }
             VariantType::FLOAT => {
                 let casted: f64 = input.to();
