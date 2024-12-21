@@ -13,9 +13,17 @@ pub fn strip_comments(path: &GString) -> String {
         },
     };
 
-    ftl.body.retain(|ast| {
+    ftl.body.retain_mut(|ast| {
         match ast {
             ast::Entry::Comment(_) | ast::Entry::GroupComment(_) | ast::Entry::ResourceComment(_) => false,
+            ast::Entry::Message(msg) => {
+                msg.comment = None;
+                true
+            },
+            ast::Entry::Term(term) => {
+                term.comment = None;
+                true
+            },
             _ => true,
         }
     });
