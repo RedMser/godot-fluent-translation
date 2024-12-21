@@ -190,6 +190,15 @@ This system provides maximal flexibility and very little maintenance once set up
 Currently, only `.tscn` files are properly handled (similarly to the POT generator feature built into Godot).
 A plug-in system to customize message extraction is planned but currently not possible to implement.
 
+## Export Settings
+
+When exporting a project, following settings are available in the export dialog:
+
+* `fluent/strip_comments`: Removes comments from the exported FTL files. Can slightly reduce the file size and avoids shipping translator notes in your game files.
+
+> [!WARNING]
+> Due to a [bug](https://github.com/RedMser/godot-fluent-translation/issues/54), FTL files are currently not considered to be resources while using the editor, and thus will not be included in exported projects by default. Please be sure to edit the "Filters to export non-resource files" to include `*.ftl` files, otherwise translations will not work in exported projects.
+
 ## About this Project
 
 This is not a production-ready project and will likely have breaking API changes without warning. Please consider this if you intend on using this library.
