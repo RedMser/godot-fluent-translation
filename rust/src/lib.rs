@@ -25,8 +25,8 @@ unsafe impl ExtensionLibrary for FluentI18n {
         if level == InitLevel::Scene {
             project_settings::register();
 
-            let singleton = FluentI18nSingleton::new_alloc();
-            singleton.bind().register();
+            let mut singleton = FluentI18nSingleton::new_alloc();
+            singleton.bind_mut().register();
 
             Engine::singleton()
                 .register_singleton(FluentI18nSingleton::SINGLETON_NAME, &singleton);
