@@ -29,7 +29,15 @@ pub fn register() {
     register_setting(PROJECT_SETTING_LOADER_PATTERN_BY_FILE_REGEX.to_string(), "".to_variant());
     register_setting(PROJECT_SETTING_LOADER_MESSAGE_PATTERN.to_string(), "".to_variant());
     register_setting_hint(PROJECT_SETTING_GENERATOR_LOCALES.to_string(), PackedStringArray::new().to_variant(), PropertyHint::NONE, format!("{}/{}:", VariantType::STRING.ord(), PropertyHint::LOCALE_ID.ord()));
-    register_setting(PROJECT_SETTING_GENERATOR_PATTERNS.to_string(), Dictionary::new().to_variant());
+    #[cfg(since_api = "4.4")]
+    {
+        // TODO: Use PropertyHint::DICTIONARY_TYPE once it is stable API.
+        register_setting_hint(PROJECT_SETTING_GENERATOR_PATTERNS.to_string(), Dictionary::new().to_variant(), PropertyHint::from(38), "String;String".into());
+    }
+    #[cfg(before_api = "4.4")]
+    {
+        register_setting(PROJECT_SETTING_GENERATOR_PATTERNS.to_string(), Dictionary::new().to_variant());
+    }
     register_setting_hint(PROJECT_SETTING_GENERATOR_INVALID_MESSAGE_HANDLING.to_string(), 0.to_variant(), PropertyHint::ENUM, "Skip message,Convert to valid".into());
 }
 
