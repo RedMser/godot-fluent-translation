@@ -29,14 +29,9 @@ As explained in the [Available Versions](./README.md#forked) section of the read
 
 ## Version Compatibility
 
-You must use [Godot v4.3](https://github.com/godotengine/godot/releases/tag/4.3-stable) or newer.
+This extension was only tested with [Godot v4.3](https://github.com/godotengine/godot/releases/tag/4.3-stable) or newer.
 
-The GDExtension uses following APIs only available in this version:
-
-- `FileAccess::resize()` (could be worked around by closing and reopening with `WRITE` perms).
-- `AutoTranslateMode` (since it occurs in code which was ["copied" from Godot](https://github.com/godotengine/godot/blob/master/editor/plugins/packed_scene_translation_parser_plugin.cpp), an alternative implementation could use the old version of that code as reference).
-
-If any interest for older Godot versions exist, consider tackling these compatibility issues first and then find out how low we can bring the minimum compatible version from this point onwards.
+Older versions may or may not work, please open an issue if there are compile errors.
 
 ## Platform Compatibility
 
