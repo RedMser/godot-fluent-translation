@@ -21,3 +21,6 @@ fluent-syntax = { git = "https://github.com/projectfluent/fluent-rs", branch = "
 godot = { version = "0.2.1", features = ["register-docs", "lazy-function-tables"] }
 itertools = "0.13.0"
 unic-langid = "0.9.4"
+
+[build-dependencies]
+godot-bindings = { version = "0.2.1" }

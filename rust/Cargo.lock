@@ -255,6 +255,7 @@ dependencies = [
  "fluent",
  "fluent-syntax",
  "godot",
+ "godot-bindings",
  "itertools",
  "unic-langid",
 ]
