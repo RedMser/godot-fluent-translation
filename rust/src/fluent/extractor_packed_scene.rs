@@ -1,8 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
-use godot::classes::{ClassDb, RegEx, ResourceLoader};
-use godot::classes::node::AutoTranslateMode;
 use godot::classes::resource_loader::CacheMode;
+use godot::classes::{ClassDb, RegEx, ResourceLoader, SceneState};
 use godot::prelude::*;
 
 use super::{FluentTranslationParser, MessageGeneration};
@@ -16,13 +15,16 @@ pub struct FluentPackedSceneTranslationParser {
 /// Main difference is that it does not (yet) call parsers recursively.
 impl FluentTranslationParser for FluentPackedSceneTranslationParser {
     fn get_recognized_extensions(&self) -> Vec<GString> {
-        ResourceLoader::singleton().get_recognized_extensions_for_type("PackedScene").to_vec()
+        ResourceLoader::singleton()
+            .get_recognized_extensions_for_type("PackedScene")
+            .to_vec()
     }
 
     fn extract_messages(&self, path: &GString) -> MessageGeneration {
         let class_db = ClassDb::singleton();
 
-        let loaded_res = ResourceLoader::singleton().load_ex(path)
+        let loaded_res = ResourceLoader::singleton()
+            .load_ex(path)
             .type_hint("PackedScene")
             .cache_mode(CacheMode::REUSE)
             .done();
@@ -38,6 +40,17 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
         let mut tabcontainer_paths = Vec::<GString>::new();
         for i in 0..state.get_node_count() {
             let mut node_type = state.get_node_type(i);
+            let is_control = class_db.is_parent_class(&node_type, "Control");
+
+            // Before auto_translate_mode.
+            #[cfg(before_api = "4.3")]
+            {
+                if !is_control && !class_db.is_parent_class(&node_type, "Window")
+                {
+                    continue;
+                }
+            }
+
             let parent_path = state.get_node_path_ex(i).for_parent(true).done();
 
             // Handle instanced scenes.
@@ -50,30 +63,12 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
             }
 
             // Find the `auto_translate_mode` property.
-            let mut auto_translating = true;
-            let mut auto_translate_mode_found = false;
-            for j in 0..state.get_node_property_count(i) {
-                if state.get_node_property_name(i, j) != "auto_translate_mode".into() {
-                    continue;
-                }
-
-                auto_translate_mode_found = true;
-
-                let idx_last = (atr_owners.len() as i64) - 1;
-                if idx_last > 0 && !parent_path.to_string().starts_with(&GString::from(atr_owners[idx_last as usize].0.clone()).to_string()) {
-                    // Switch to the previous auto translation owner this was nested in, if that was the case.
-                    atr_owners.remove(idx_last as usize);
-                }
-                
-                let auto_translate_mode = i32::from_variant(&state.get_node_property_value(i, j));
-                if auto_translate_mode == AutoTranslateMode::DISABLED.ord() {
-                    auto_translating = false;
-                }
-
-                atr_owners.push((state.get_node_path(i), auto_translating));
-
-                break;
-            }
+            let (mut auto_translating, auto_translate_mode_found) = Self::find_auto_translate_mode(
+                &state,
+                i,
+                &mut atr_owners,
+                &parent_path.to_string(),
+            );
 
             // If `auto_translate_mode` wasn't found, that means it is set to its default value (`AUTO_TRANSLATE_MODE_INHERIT`).
             if !auto_translate_mode_found {
@@ -87,13 +82,21 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
 
             // Parse the names of children of `TabContainer`s, as they are used for tab titles.
             if !tabcontainer_paths.is_empty() {
-                if !parent_path.to_string().starts_with(&tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize].clone().to_string()) {
+                if !parent_path.to_string().starts_with(
+                    &tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize]
+                        .clone()
+                        .to_string(),
+                ) {
                     // Switch to the previous `TabContainer` this was nested in, if that was the case.
                     tabcontainer_paths.pop();
                 }
 
-                if auto_translating && !tabcontainer_paths.is_empty() && class_db.is_parent_class(&node_type, "Control")
-                    && GString::from(parent_path) == tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize] {
+                if auto_translating
+                    && !tabcontainer_paths.is_empty()
+                    && is_control
+                    && GString::from(parent_path)
+                        == tabcontainer_paths[((tabcontainer_paths.len() as i64) - 1) as usize]
+                {
                     parsed_strings.push(GString::from(state.get_node_name(i)));
                 }
             }
@@ -131,7 +134,8 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
                             r_ids_ctx_plural.extend(ids_context_plural);
                         }
                     }
-                } else */ if node_type == "FileDialog".into() && property_name == "filters".into() {
+                } else */
+                if node_type == "FileDialog".into() && property_name == "filters".into() {
                     // Extract FileDialog's filters property with values in format "*.png ; PNG Images","*.gd ; GDScript Files".
                     let str_values = PackedStringArray::from_variant(&property_value);
                     for str_value in str_values.to_vec() {
@@ -161,18 +165,26 @@ impl FluentTranslationParser for FluentPackedSceneTranslationParser {
 
 impl FluentPackedSceneTranslationParser {
     pub fn init() -> Self {
-        let lookup_properties = ["^text$", "^.+_text$", "^popup/.+/text$", "^title$", "^filters$", /* "^script$", */]
-            .map(|str| RegEx::create_from_string(str).unwrap())
-            .into();
+        let lookup_properties = [
+            "^text$",
+            "^.+_text$",
+            "^popup/.+/text$",
+            "^title$",
+            "^filters$", /* "^script$", */
+        ]
+        .map(|str| RegEx::create_from_string(str).unwrap())
+        .into();
         let exception_list = [
             ("LineEdit", ["^text$"]),
             ("TextEdit", ["^text$"]),
             ("CodeEdit", ["^text$"]),
-        ].map(|(typename, strs)|
-            (StringName::from(typename), HashSet::from(
-                strs.map(|str| RegEx::create_from_string(str).unwrap())
-            ))
-        )
+        ]
+        .map(|(typename, strs)| {
+            (
+                StringName::from(typename),
+                HashSet::from(strs.map(|str| RegEx::create_from_string(str).unwrap())),
+            )
+        })
         .into();
 
         Self {
@@ -185,20 +197,71 @@ impl FluentPackedSceneTranslationParser {
         let class_db = ClassDb::singleton();
 
         for (exception_node_type, exception_properties) in &self.exception_list {
-            if class_db.is_parent_class(node_type, exception_node_type) &&
-                exception_properties.iter().any(|exception_property|
+            if class_db.is_parent_class(node_type, exception_node_type)
+                && exception_properties.iter().any(|exception_property| {
                     Self::matches(&GString::from(property_name), exception_property.clone())
-            ) {
+                })
+            {
                 return false;
             }
         }
 
-        self.lookup_properties.iter().any(|lookup_property|
+        self.lookup_properties.iter().any(|lookup_property| {
             Self::matches(&GString::from(property_name), lookup_property.clone())
-        )
+        })
     }
 
     fn matches(string: &GString, pattern: Gd<RegEx>) -> bool {
         pattern.search(string).is_some()
+    }
+
+    // Since auto_translate_mode.
+    #[cfg(since_api = "4.3")]
+    /// Returns (auto_translating, auto_translate_mode_found).
+    fn find_auto_translate_mode(state: &Gd<SceneState>, state_node: i32, atr_owners: &mut Vec<(NodePath, bool)>, parent_path: &String) -> (bool, bool) {
+        let (mut auto_translating, mut auto_translate_mode_found) = (true, false);
+        for j in 0..state.get_node_property_count(state_node) {
+            if state.get_node_property_name(state_node, j) != "auto_translate_mode".into() {
+                continue;
+            }
+
+            auto_translate_mode_found = true;
+
+            let idx_last = (atr_owners.len() as i64) - 1;
+            if idx_last > 0 && !parent_path.starts_with(&GString::from(atr_owners[idx_last as usize].0.clone()).to_string()) {
+                // Switch to the previous auto translation owner this was nested in, if that was the case.
+                atr_owners.remove(idx_last as usize);
+            }
+
+            let auto_translate_mode = i32::from_variant(&state.get_node_property_value(state_node, j));
+            if auto_translate_mode == godot::classes::node::AutoTranslateMode::DISABLED.ord() {
+                auto_translating = false;
+            }
+
+            atr_owners.push((state.get_node_path(state_node), auto_translating));
+
+            break;
+        }
+        (auto_translating, auto_translate_mode_found)
+    }
+
+    // Before auto_translate_mode.
+    #[cfg(before_api = "4.3")]
+    /// Returns (auto_translating, auto_translate_mode_found).
+    fn find_auto_translate_mode(
+        state: &Gd<SceneState>,
+        state_node: i32,
+        _atr_owners: &mut Vec<(NodePath, bool)>,
+        _parent_path: &String,
+    ) -> (bool, bool) {
+        //if (state->get_node_property_name(state_node, j) == "auto_translate" && (bool)state->get_node_property_value(state_node, j) == false) {
+        for j in 0..state.get_node_property_count(state_node) {
+            if state.get_node_property_name(state_node, j) == "auto_translate".into()
+                && state.get_node_property_value(state_node, j).booleanize() == false
+            {
+                return (false, true);
+            }
+        }
+        (true, true)
     }
 }
