@@ -1,5 +1,5 @@
 use godot::prelude::*;
-use godot::classes::{ProjectSettings, RegEx, RegExMatch};
+use godot::classes::{FileAccess, ProjectSettings, RegEx, RegExMatch};
 use godot::global::error_string;
 use itertools::Itertools;
 use std::{collections::HashMap, path::PathBuf};
@@ -136,8 +136,8 @@ impl FluentGenerator {
     fn create_or_update_ftl(path: String, messages: MessageGeneration) {
         // Load existing or create new FTL file.
         let fa = create_or_open_file_for_read_write(&path.clone().into());
-        if fa.is_err() {
-            godot_error!("Unable to open file {} for writing: {}", path, error_string(fa.err().unwrap().ord() as i64));
+        if let Err(err) = fa {
+            godot_error!("Unable to open file {} for writing: {}", path, error_string(err.ord() as i64));
             return;
         }
         let mut fa = fa.unwrap();
@@ -210,11 +210,14 @@ impl FluentGenerator {
 
         // Save back to file.
         let ftl = serialize(&ftl);
-        if fa.resize(0) != GdErr::OK {
-            godot_error!("Failed to resize file {}", path);
-            return;
+        match Self::truncate_file(fa) {
+            Ok(mut fa) => {
+                fa.store_string(&ftl);
+            },
+            Err(err) => {
+                godot_error!("Failed to resize file {}: {}", path, error_string(err.ord() as i64));
+            }
         }
-        fa.store_string(&ftl);
     }
 
     fn make_safe_identifier(name: String) -> String {
@@ -243,5 +246,26 @@ impl FluentGenerator {
         }
 
         new_name
+    }
+
+    // Before FileAccess::resize
+    #[cfg(before_api = "4.3")]
+    fn truncate_file(fa: Gd<FileAccess>) -> Result<Gd<FileAccess>, GdErr> {
+        let path = fa.get_path();
+        let fa = FileAccess::open(&path, godot::classes::file_access::ModeFlags::WRITE);
+        if fa.is_none() || FileAccess::get_open_error() != GdErr::OK {
+            return Err(FileAccess::get_open_error());
+        }
+        Ok(fa.unwrap())
+    }
+
+    // Since FileAccess::resize
+    #[cfg(since_api = "4.3")]
+    fn truncate_file(mut fa: Gd<FileAccess>) -> Result<Gd<FileAccess>, GdErr> {
+        let err = fa.resize(0);
+        if err != GdErr::OK {
+            return Err(err);
+        }
+        Ok(fa)
     }
 }
