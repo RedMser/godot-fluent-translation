@@ -7,9 +7,9 @@ edition = "2021"
 # Use stable Godot build. Makes it easier to install without customization, at the cost of worse engine integration and less features.
 default-godot = []
 # Use custom Godot build but with default API. Allows using a newer Godot build (e.g. alpha) but without a custom engine build.
-custom-godot = ["godot/custom-godot"]
+custom-godot = ["godot/api-custom"]
 # Use forked Godot build. If you're already building your own engine version, this should be the preferred method.
-forked-godot = ["godot/custom-godot"]
+forked-godot = ["godot/api-custom"]
 
 [lib]
 crate-type = ["cdylib"]  # Compile this crate to a dynamic C library.
