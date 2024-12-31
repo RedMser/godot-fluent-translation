@@ -1,6 +1,6 @@
 [package]
 name = "godot-fluent-translation" # Appears in the filename of the compiled dynamic library.
-version = "0.2.0"
+version = "1.0.0"
 edition = "2021"
 
 [features]
