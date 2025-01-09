@@ -172,20 +172,21 @@ impl FluentPackedSceneTranslationParser {
             "^title$",
             "^filters$", /* "^script$", */
         ]
-        .map(|str| RegEx::create_from_string(str).unwrap())
-        .into();
+            .map(|str| RegEx::create_from_string(str).unwrap())
+            .into();
+
         let exception_list = [
             ("LineEdit", ["^text$"]),
             ("TextEdit", ["^text$"]),
             ("CodeEdit", ["^text$"]),
         ]
-        .map(|(typename, strs)| {
-            (
-                StringName::from(typename),
-                HashSet::from(strs.map(|str| RegEx::create_from_string(str).unwrap())),
-            )
-        })
-        .into();
+            .map(|(typename, strs)| {
+                (
+                    StringName::from(typename),
+                    HashSet::from(strs.map(|str| RegEx::create_from_string(str).unwrap())),
+                )
+            })
+            .into();
 
         Self {
             lookup_properties,

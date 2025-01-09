@@ -33,10 +33,10 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
 
     fn get_resource_type(&self, path: GString) -> GString {
         if path.to_string().to_lowercase().ends_with("ftl") {
-            "Translation".into()
+            "Translation"
         } else {
-            "".into()
-        }
+            ""
+        }.into()
     }
 
     fn load(&self, path: GString, _original_path: GString, _use_sub_threads: bool, _cache_mode: i32) -> Variant {
@@ -80,6 +80,7 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
         if err != GdErr::OK {
             return err.ord().to_variant();
         }
+
         translation.to_variant()
     }
 }

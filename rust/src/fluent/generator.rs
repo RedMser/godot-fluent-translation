@@ -36,13 +36,15 @@ impl FluentGenerator {
         let project_settings = ProjectSettings::singleton();
         let locales = PackedStringArray::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_LOCALES));
         let locales = locales.as_slice().iter().map(|s| s.to_string()).collect();
-        let file_patterns = Dictionary::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_PATTERNS));
-        let file_patterns = file_patterns.iter_shared().map(|(k, v)| {
-            let k = GString::from_variant(&k);
-            let k = RegEx::create_from_string(&k).unwrap();
-            let v = GString::from_variant(&v).to_string();
-            (k, v)
-        }).collect();
+        let file_patterns = Dictionary::from_variant(&project_settings.get_setting(PROJECT_SETTING_GENERATOR_PATTERNS))
+            .iter_shared()
+            .map(|(k, v)| {
+                let k = GString::from_variant(&k);
+                let k = RegEx::create_from_string(&k).unwrap();
+                let v = GString::from_variant(&v).to_string();
+                (k, v)
+            })
+            .collect();
         Gd::from_object(Self {
             locales,
             file_patterns,
@@ -60,32 +62,37 @@ impl FluentGenerator {
         let files = self.get_matching_files();
         let mut generate_tasks = HashMap::<String, MessageGeneration>::new();
         for (source, pattern) in files {
-            let targets = self.apply_pattern(source.clone(), pattern);
+            let targets = self.apply_pattern(source.clone(), &pattern);
             for target in targets {
                 let entry = generate_tasks.entry(target.clone());
-                let mut messages = self.get_messages(&source.get_string()).into_iter().filter_map(|(id, message)| {
-                    if id.is_empty() {
-                        return None;
-                    }
-
-                    let safe_id = Self::make_safe_identifier(id.clone());
-                    if id != safe_id {
-                        if self.invalid_message_handling == INVALID_MESSAGE_HANDLING_SKIP {
-                            // Skip invalid message.
+                let mut messages = self.get_messages(&source.get_string())
+                    .into_iter()
+                    .filter_map(|(id, message)| {
+                        if id.is_empty() {
                             return None;
-                        } else {
-                            return Some((safe_id, message));
                         }
-                    }
-                    Some((id, message))
-                });
+
+                        let safe_id = Self::make_safe_identifier(&id);
+                        if id != safe_id {
+                            if self.invalid_message_handling == INVALID_MESSAGE_HANDLING_SKIP {
+                                // Skip invalid message.
+                                return None;
+                            } else {
+                                return Some((safe_id, message));
+                            }
+                        }
+
+                        Some((id, message))
+                    });
                 entry.or_default().extend(&mut messages);
             }
         }
 
         // Do the writes.
         for (ftl, messages) in generate_tasks {
-            Self::create_or_update_ftl(ftl, messages);
+            if let Err(_) = Self::create_or_update_ftl(&ftl, messages) {
+                godot_error!("FluentGenerator failed to complete for '{ftl}'.");
+            }
         }
     }
 
@@ -104,6 +111,7 @@ impl FluentGenerator {
                     if regex_match.is_none() {
                         return None;
                     }
+
                     let regex_match = (regex_match.unwrap(), pattern.to_owned());
                     let path = PathBuf::from(str.to_string());
                     let extension = path.extension().unwrap_or_default().to_str().unwrap_or_default();
@@ -112,13 +120,14 @@ impl FluentGenerator {
                         godot_warn!("File {str} matched generator rule \"{regex_str} -> {pattern}\" but has unrecognized extension {extension}, ignoring.");
                         return None;
                     }
+
                     Some(regex_match)
                 })
             })
             .collect()
     }
 
-    fn apply_pattern(&self, source_match: Gd<RegExMatch>, pattern: String) -> Vec<String> {
+    fn apply_pattern(&self, source_match: Gd<RegExMatch>, pattern: &String) -> Vec<String> {
         self.locales
             .iter()
             .map(|locale| {
@@ -133,14 +142,16 @@ impl FluentGenerator {
             .collect()
     }
 
-    fn create_or_update_ftl(path: String, messages: MessageGeneration) {
+    fn create_or_update_ftl(path: &String, messages: MessageGeneration) -> Result<(), GdErr> {
         // Load existing or create new FTL file.
         let fa = create_or_open_file_for_read_write(&path.clone().into());
-        if let Err(err) = fa {
-            godot_error!("Unable to open file {} for writing: {}", path, error_string(err.ord() as i64));
-            return;
-        }
-        let mut fa = fa.unwrap();
+        let fa = match fa {
+            Ok(fa) => fa,
+            Err(err) => {
+                godot_error!("Unable to open file {} for writing: {}", path, error_string(err.ord() as i64));
+                return Err(err);
+            }
+        };
 
         let ftl = parse(fa.get_as_text().to_string());
         let mut ftl = match ftl {
@@ -163,25 +174,27 @@ impl FluentGenerator {
 
         for (identifier, message) in messages {
             // Check if exists.
-            let existing = existing_messages.iter().find(|entry| entry.id.name == identifier);
-            if existing.is_none() {
-                // Add new message.
-                godot_print!("{} added new message: {}", path, message);
-                new_messages.push(ast::Entry::Message(ast::Message {
-                    id: ast::Identifier {
-                        name: identifier
-                    },
-                    value: Some(ast::Pattern {
-                        elements: vec![
-                            ast::PatternElement::TextElement {
-                                value: message.clone(),
-                            },
-                        ],
-                    }),
-                    attributes: Default::default(),
-                    comment: None,
-                }));
+            let has_existing = existing_messages.iter().any(|entry| entry.id.name == identifier);
+            if has_existing {
+                continue;
             }
+
+            // Add new message.
+            godot_print!("{} added new message: {}", path, message);
+            new_messages.push(ast::Entry::Message(ast::Message {
+                id: ast::Identifier {
+                    name: identifier
+                },
+                value: Some(ast::Pattern {
+                    elements: vec![
+                        ast::PatternElement::TextElement {
+                            value: message,
+                        },
+                    ],
+                }),
+                attributes: Default::default(),
+                comment: None,
+            }));
         }
         // TODO: Add an option to check for deleted messages, and mark them with a comment in the file:
         /*
@@ -216,11 +229,13 @@ impl FluentGenerator {
             },
             Err(err) => {
                 godot_error!("Failed to resize file {}: {}", path, error_string(err.ord() as i64));
+                return Err(err);
             }
         }
+        Ok(())
     }
 
-    fn make_safe_identifier(name: String) -> String {
+    fn make_safe_identifier(name: &String) -> String {
         // Identifiers are [a-zA-Z][a-zA-Z0-9_-]*
         if name.is_empty() {
             panic!("Identifier name can't be empty.");

@@ -51,13 +51,13 @@ fn register_setting_hint(name: String, value: Variant, hint: PropertyHint, hint_
     if !project_settings.has_setting(&name) {
         project_settings.set_setting(&name, &value);
     }
+    project_settings.set_initial_value(&name, &value);
 
     let mut property_info = Dictionary::new();
-    property_info.set("name", GString::from(name.clone()));
+    property_info.set("name", GString::from(name));
     property_info.set("type", value.get_type());
     property_info.set("hint", hint);
     property_info.set("hint_string", GString::from(hint_string));
 
     project_settings.add_property_info(&property_info);
-    project_settings.set_initial_value(&name, &value);
 }
