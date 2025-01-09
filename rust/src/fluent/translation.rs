@@ -21,6 +21,7 @@ use super::project_settings::{PROJECT_SETTING_FALLBACK_LOCALE, PROJECT_SETTING_P
 /// depending on the corresponding Project Settings.
 #[derive(GodotClass)]
 #[class(base=Translation)]
+#[allow(dead_code)]
 pub struct TranslationFluent {
     /// Automatically wrap every message with the specified regex pattern, defined as a string pattern.
     /// This can be specified in order to create custom namespaces for your translations.
@@ -107,7 +108,7 @@ impl TranslationFluent {
         }
     }
 
-    fn map_langid_error(error: LanguageIdentifierError) -> GdErr {
+    fn map_langid_error(error: &LanguageIdentifierError) -> GdErr {
         match error {
             LanguageIdentifierError::ParserError(error) => {
                 match error {
@@ -136,7 +137,7 @@ impl TranslationFluent {
         }
     }
 
-    fn map_fluent_error_list(errors: &Vec<FluentError>) -> GdErr {
+    fn map_fluent_error_list(errors: &[FluentError]) -> GdErr {
         // TODO: Just take first error for now...
         let error = errors.first();
         match error {
@@ -206,13 +207,14 @@ impl TranslationFluent {
 
     pub fn translate(&self, message_id: &StringName, args: &Dictionary, attribute: Option<&StringName>) -> Option<String> {
         if self.bundle.is_none() {
-            godot_error!("Unable to translate before adding at least one FTL file to translation.");
+            godot_error!("Unable to translate before adding at least one FTL file to translation. Use append_from_text() or load().");
             return None;
         }
 
         let bundle = self.bundle.as_ref().unwrap();
         let message = bundle.get_message(&String::from(message_id));
         message.as_ref()?;
+
         let message = message.unwrap();
         let pattern = match attribute {
             Some(attribute) => {
@@ -220,9 +222,8 @@ impl TranslationFluent {
                     .map(|attr| attr.value())
             },
             None => message.value(),
-        };
-        pattern?;
-        let pattern = pattern.unwrap();
+        }?;
+
         let mut errors = vec![];
         let args = Self::dict_to_args(args);
         let text = bundle.format_pattern(pattern, Some(&args), &mut errors);
@@ -249,6 +250,7 @@ impl TranslationFluent {
             let project_settings = ProjectSettings::singleton();
             bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_PARSE_ARGS_IN_MESSAGE))
         };
+
         if parse_args_in_message {
             // Try parsing trailing dict as args.
             let msg_str = msg.to_string();
@@ -293,12 +295,10 @@ impl TranslationFluent {
             },
         };
 
-        let res = FluentResource::try_new(text);
-        if res.is_err() {
+        let Ok(res) = FluentResource::try_new(text) else {
             // TODO: I could give more parser error details here, and probably should? :)
             return GdErr::ERR_PARSE_ERROR;
-        }
-        let res = res.unwrap();
+        };
 
         match bundle.add_resource(res) {
             Ok(_) => GdErr::OK,
@@ -309,7 +309,7 @@ impl TranslationFluent {
     fn create_bundle(&self) -> Result<FluentBundle<FluentResource>, GdErr> {
         let mut bundle = FluentBundle::new(self.get_fluent_locales()?);
         let project_settings = ProjectSettings::singleton();
-        bundle.set_use_isolating(bool::from_variant(&project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION)));
+        bundle.set_use_isolating(project_settings.get_setting(PROJECT_SETTING_UNICODE_ISOLATION).booleanize());
         Ok(bundle)
     }
 
@@ -324,7 +324,7 @@ impl TranslationFluent {
 
         let lang_id = String::from(lang).parse::<LanguageIdentifier>();
         match lang_id {
-            Err(err) => Err(Self::map_langid_error(err)),
+            Err(err) => Err(Self::map_langid_error(&err)),
             Ok(lang_id) => {
                 let project_settings = ProjectSettings::singleton();
                 let mut locales = vec![lang_id];
@@ -333,7 +333,7 @@ impl TranslationFluent {
                 if fallback_locale.len() >= 2 {
                     let fallback_locale_id = fallback_locale.to_string().parse::<LanguageIdentifier>();
                     match fallback_locale_id {
-                        Err(err) => return Err(Self::map_langid_error(err)),
+                        Err(err) => return Err(Self::map_langid_error(&err)),
                         Ok(fallback_locale_id) => {
                             locales.push(fallback_locale_id);
                         }
