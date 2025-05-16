@@ -346,10 +346,18 @@ impl TranslationFluent {
 
     /// Defines a custom function that can be called in a placeable.
     /// 
-    /// [param name] must be an all-uppercase string.
+    /// [param name] is the name of the custom function to register. It must be an all-uppercase string.
+    /// 
     /// [param callable] takes two parameters `positional: Array[String|int|float]` and `named: Dictionary[String, String|int|float]` and must return `String|int|float|null`.
     #[func]
     pub fn add_function(&mut self, name: GString, callable: SyncSendCallable) -> GdErr {
+        {
+            let args_count = callable.get_argument_count();
+            if args_count != 2 {
+                godot_error!("add_function expects a callable with exactly 2 arguments, but provided callable has {args_count}.",)
+            }
+        }
+
         let bundle = match &mut self.bundle {
             Some(bundle) => bundle,
             None => &mut {
@@ -367,7 +375,7 @@ impl TranslationFluent {
         let name = String::from(name);
         let name_upper = name.to_uppercase();
         if name != name_upper {
-            godot_warn!("add_function expects uppercase function names. Registered function as {name_upper}");
+            godot_warn!("add_function requires function names to be uppercase. Registered function as {name_upper}");
         }
 
         let add_result = bundle.add_function(&name_upper, move |positional, named| {
