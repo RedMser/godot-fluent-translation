@@ -4,7 +4,7 @@ use godot::prelude::*;
 use godot::classes::{FileAccess, IResourceFormatLoader, ProjectSettings, RegEx, ResourceFormatLoader};
 use godot::global::Error as GdErr;
 
-use super::{locale::{compute_locale, compute_message_pattern}, project_settings::*, TranslationFluent};
+use super::{locale::{compute_locale, compute_message_pattern}, project_settings::*, TranslationFluent, FluentI18nSingleton};
 
 /// Loads Fluent Translation List (FTL) files.
 /// 
@@ -51,6 +51,12 @@ impl IResourceFormatLoader for ResourceFormatLoaderFluent {
         let err = FileAccess::get_open_error();
         if err != GdErr::OK {
             return err.ord().to_variant();
+        }
+
+        {
+            let singleton = FluentI18nSingleton::singleton();
+            let singleton = singleton.bind();
+            godot_print!("we loading and my plugin says {}", singleton.plugin_get_foo());
         }
 
         let mut translation = TranslationFluent::new_gd();

@@ -39,14 +39,14 @@ unsafe impl ExtensionLibrary for FluentI18n {
 
             let singleton = engine
                 .get_singleton(FluentI18nSingleton::SINGLETON_NAME)
-                .unwrap();
+                .expect(&format!("{} is not registered at the time of extension unloading.", FluentI18nSingleton::SINGLETON_NAME));
 
             engine.unregister_singleton(FluentI18nSingleton::SINGLETON_NAME);
 
             singleton
                 .clone()
                 .cast::<FluentI18nSingleton>()
-                .bind()
+                .bind_mut()
                 .unregister();
 
             singleton.free();
